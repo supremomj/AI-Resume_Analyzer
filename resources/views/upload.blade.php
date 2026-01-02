@@ -229,13 +229,43 @@
                                     </div>
                                 </div>
                                 
-                                <!-- Recommended Field -->
+                                <!-- Recommended Fields -->
                                 <div class="mb-5 p-3 bg-white rounded-lg border border-blue-100">
                                     <div class="mb-2">
-                                        <span class="text-xs font-semibold text-gray-600 uppercase tracking-wide">Recommended Field</span>
-                                        <div class="mt-1">
-                                            <span class="text-base font-bold text-[#1193d4]">{{ $user->recommended_field ?? 'General' }}</span>
-                                        </div>
+                                        <span class="text-xs font-semibold text-gray-600 uppercase tracking-wide">Recommended Fields</span>
+                                        @php
+                                            $recommendedFields = $user->ai_analysis['recommended_fields'] ?? [];
+                                            // Fallback to single field if old format
+                                            if (empty($recommendedFields) && !empty($user->recommended_field)) {
+                                                $recommendedFields = [['field' => $user->recommended_field, 'confidence' => 1.0]];
+                                            }
+                                        @endphp
+                                        @if(!empty($recommendedFields) && is_array($recommendedFields))
+                                            <div class="mt-2 space-y-1.5">
+                                                @foreach($recommendedFields as $index => $rf)
+                                                    @php
+                                                        $field = is_array($rf) ? ($rf['field'] ?? $rf) : $rf;
+                                                        $confidence = is_array($rf) ? ($rf['confidence'] ?? 0) : 1.0;
+                                                        $isPrimary = $index === 0;
+                                                    @endphp
+                                                    <div class="flex items-center justify-between">
+                                                        <span class="text-sm {{ $isPrimary ? 'font-bold text-[#1193d4]' : 'font-semibold text-gray-700' }}">
+                                                            @if($isPrimary)
+                                                                <span class="text-xs text-blue-500 mr-1">#1</span>
+                                                            @endif
+                                                            {{ $field }}
+                                                        </span>
+                                                        @if(is_array($rf) && isset($rf['confidence']))
+                                                            <span class="text-xs text-gray-500">{{ round($rf['confidence'] * 100, 0) }}%</span>
+                                                        @endif
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        @else
+                                            <div class="mt-1">
+                                                <span class="text-base font-bold text-[#1193d4]">{{ $user->recommended_field ?? 'Software Engineering' }}</span>
+                                            </div>
+                                        @endif
                                     </div>
                                     @if(isset($user->ai_analysis['ph_experience_level']) && $user->ai_analysis['ph_experience_level'])
                                         <div class="mt-2">
@@ -487,6 +517,9 @@
                                                     </div>
                                                     @if($percent !== null)
                                                         <p class="text-xs text-blue-600 mt-1">Match: {{ $percent }}%</p>
+                                                    @endif
+                                                    @if(!empty($job['deepseek_reason']))
+                                                        <p class="text-xs text-gray-500 mt-1 line-clamp-2">{{ $job['deepseek_reason'] }}</p>
                                                     @endif
                                                 </div>
                                             @endforeach

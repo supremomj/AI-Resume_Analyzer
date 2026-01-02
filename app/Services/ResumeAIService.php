@@ -284,7 +284,8 @@ class ResumeAIService
             'experience' => $analysis['experience'] ?? [],
             'education' => $analysis['education'] ?? [],
             'resume_score' => $analysis['resume_score'] ?? 0,
-            'recommended_field' => $analysis['recommended_field'] ?? 'General',
+            'recommended_field' => $analysis['recommended_field'] ?? 'Software Engineering',
+            'recommended_fields' => $analysis['recommended_fields'] ?? [],
             'recommended_skills' => $analysis['recommended_skills'] ?? [],
             'recommended_courses' => $analysis['recommended_courses'] ?? [],
             'recommended_jobs' => $analysis['recommended_jobs'] ?? [],
@@ -300,4 +301,7 @@ class ResumeAIService
         ];
     }
 }
+
+
+
 

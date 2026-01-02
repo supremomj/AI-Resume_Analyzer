@@ -125,7 +125,7 @@ class ResumeController extends Controller
                         'error' => $e->getMessage(),
                     ]);
                 }
-
+                
                 $user->ai_analysis = $formatted;
                 $user->resume_score = $formatted['resume_score'] ?? null;
                 $user->recommended_field = $formatted['recommended_field'] ?? null;

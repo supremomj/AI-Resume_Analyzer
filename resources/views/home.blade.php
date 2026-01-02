@@ -1136,7 +1136,7 @@
                                 @endif
                                 
                                 <!-- Recommended Field -->
-                                @if(auth()->user()->recommended_field && auth()->user()->recommended_field !== 'General')
+                                @if(auth()->user()->recommended_field)
                                     <div class="mb-4">
                                         <span class="text-sm font-semibold text-gray-700">Recommended Field: </span>
                                         <span class="text-base font-bold text-[#1193d4]">{{ auth()->user()->recommended_field }}</span>

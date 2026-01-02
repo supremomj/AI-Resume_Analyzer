@@ -41,7 +41,7 @@
                     </div>
                     <div>
                         <h4 class="text-lg font-semibold text-gray-900 mb-2">Recommended Field</h4>
-                        <p class="text-[#1193d4] font-bold text-lg">{{ auth()->user()->recommended_field ?? 'General' }}</p>
+                        <p class="text-[#1193d4] font-bold text-lg">{{ auth()->user()->recommended_field ?? 'Software Engineering' }}</p>
                         @if(auth()->user()->resume_score)
                             <div class="mt-3">
                                 <div class="flex items-center justify-between mb-1">

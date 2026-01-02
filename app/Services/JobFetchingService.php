@@ -64,7 +64,7 @@ class JobFetchingService
         
         // Get user's skills and recommended field
         $skills = $this->user->ai_analysis['skills'] ?? [];
-        $recommendedField = $this->user->recommended_field ?? 'General';
+        $recommendedField = $this->user->recommended_field ?? 'Software Engineering';
         
         // Build search query based on AI analysis
         $searchQuery = $this->buildSearchQuery($recommendedField, $skills);
@@ -227,18 +227,56 @@ class JobFetchingService
                 'matching_method' => 'keyword-based (optimized)'
             ]);
             
-            // Filter jobs: Lower threshold to 25% to show more jobs
-            // This ensures jobs are related to the user's resume but not too strict
+            // Filter jobs: Prioritize jobs matching the recommended field
             $jobsBeforeFilter = count($matchedJobs);
-            $matchedJobs = array_filter($matchedJobs, function ($job) {
-                $score = $job['match_score'] ?? $job['match_percentage'] ?? 0;
-                return $score >= 25; // Minimum 25% match - lenient to show real jobs
-            });
             
-            Log::info("Jobs after filtering (25% threshold)", [
+            // Separate jobs into field-matched and non-field-matched
+            $fieldMatchedJobs = [];
+            $otherJobs = [];
+            
+            foreach ($matchedJobs as $job) {
+                $score = $job['match_score'] ?? $job['match_percentage'] ?? 0;
+                $jobText = strtolower(($job['title'] ?? '') . ' ' . ($job['description'] ?? ''));
+                $fieldLower = strtolower($recommendedField);
+                $fieldKeywords = $this->getFieldKeywords($recommendedField);
+                
+                // Check if job matches the recommended field
+                $matchesField = false;
+                if (stripos($jobText, $fieldLower) !== false) {
+                    $matchesField = true;
+                } else {
+                    // Check field keywords
+                    foreach ($fieldKeywords as $keyword) {
+                        if (stripos($jobText, $keyword) !== false) {
+                            $matchesField = true;
+                            break;
+                        }
+                    }
+                }
+                
+                // Only include jobs with minimum score
+                if ($score >= 30) {
+                    if ($matchesField) {
+                        $fieldMatchedJobs[] = $job;
+                    } else {
+                        // Only include non-field jobs if they have high skill match (60%+)
+                        if ($score >= 60) {
+                            $otherJobs[] = $job;
+                        }
+                    }
+                }
+            }
+            
+            // Prioritize field-matched jobs, then add high-scoring others
+            $matchedJobs = array_merge($fieldMatchedJobs, $otherJobs);
+            
+            Log::info("Jobs after filtering (field-focused)", [
                 'remaining_jobs' => count($matchedJobs),
+                'field_matched' => count($fieldMatchedJobs),
+                'other_high_score' => count($otherJobs),
                 'jobs_before_filter' => $jobsBeforeFilter,
-                'filtered_out' => $jobsBeforeFilter - count($matchedJobs)
+                'filtered_out' => $jobsBeforeFilter - count($matchedJobs),
+                'recommended_field' => $recommendedField
             ]);
         } else {
             $matchedJobs = [];
@@ -1597,15 +1635,43 @@ class JobFetchingService
         $jobDesc = strtolower($job['description'] ?? '');
         $jobText = $jobTitle . ' ' . $jobDesc;
         
-        // Recommended field match (most important - 50 points)
+        // Field-specific keywords mapping for better matching
+        $fieldKeywords = $this->getFieldKeywords($recommendedField);
+        
+        // Recommended field match (most important - 60 points)
+        $fieldMatchScore = 0;
         if (!empty($recommendedField)) {
             $fieldLower = strtolower($recommendedField);
+            
+            // Check exact field name match
             if (stripos($jobTitle, $fieldLower) !== false) {
-                $score += 50; // Field in title
+                $fieldMatchScore = 60; // Field in title - highest priority
             } elseif (stripos($jobText, $fieldLower) !== false) {
-                $score += 30; // Field in description
+                $fieldMatchScore = 40; // Field in description
+            }
+            
+            // Check field-specific keywords (more flexible matching)
+            if ($fieldMatchScore === 0 && !empty($fieldKeywords)) {
+                $keywordMatches = 0;
+                foreach ($fieldKeywords as $keyword) {
+                    if (stripos($jobTitle, $keyword) !== false) {
+                        $keywordMatches += 2; // Keywords in title are more important
+                    } elseif (stripos($jobText, $keyword) !== false) {
+                        $keywordMatches += 1; // Keywords in description
+                    }
+                }
+                
+                if ($keywordMatches >= 3) {
+                    $fieldMatchScore = 50; // Strong keyword match
+                } elseif ($keywordMatches >= 2) {
+                    $fieldMatchScore = 35; // Moderate keyword match
+                } elseif ($keywordMatches >= 1) {
+                    $fieldMatchScore = 20; // Weak keyword match
+                }
             }
         }
+        
+        $score += $fieldMatchScore;
         
         // Skill matches (15 points per skill in title, 10 in description)
         $matchingSkills = 0;
@@ -1628,7 +1694,44 @@ class JobFetchingService
             $score += 15;
         }
         
+        // Penalty if field doesn't match at all (reduce score significantly)
+        if ($fieldMatchScore === 0 && !empty($recommendedField)) {
+            $score = max(0, $score - 30); // Reduce score by 30 if no field match
+        }
+        
         return min(100, $score);
+    }
+    
+    /**
+     * Get field-specific keywords for better job matching
+     */
+    protected function getFieldKeywords(string $field): array
+    {
+        $fieldLower = strtolower($field);
+        
+        $keywordsMap = [
+            'software engineering' => ['software engineer', 'software developer', 'programmer', 'developer', 'coding', 'programming', 'software', 'application developer', 'systems developer'],
+            'data science' => ['data scientist', 'data analyst', 'data engineer', 'machine learning', 'ml engineer', 'ai engineer', 'analytics', 'data mining', 'big data'],
+            'web development' => ['web developer', 'frontend', 'backend', 'full stack', 'fullstack', 'web developer', 'php developer', '.net developer', 'node.js', 'react developer', 'vue developer'],
+            'ui-ux development' => ['ui designer', 'ux designer', 'ui/ux', 'user interface', 'user experience', 'interface designer', 'ux/ui', 'designer'],
+            'android development' => ['android developer', 'android', 'mobile developer', 'kotlin', 'android app', 'mobile app developer'],
+            'ios development' => ['ios developer', 'swift', 'ios app', 'apple developer', 'iphone developer'],
+        ];
+        
+        // Check for exact match
+        if (isset($keywordsMap[$fieldLower])) {
+            return $keywordsMap[$fieldLower];
+        }
+        
+        // Check for partial match
+        foreach ($keywordsMap as $key => $keywords) {
+            if (stripos($fieldLower, $key) !== false || stripos($key, $fieldLower) !== false) {
+                return $keywords;
+            }
+        }
+        
+        // Default: return field name variations
+        return [str_replace(' ', '', $fieldLower), $fieldLower];
     }
 
     /**
