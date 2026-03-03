@@ -1,10 +1,10 @@
 <nav class="sticky top-0 z-20 bg-white border-b border-gray-200 shadow-sm">
     <div class="max-w-7xl mx-auto flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8 relative">
         <!-- Left: Logo -->
-        <div class="flex items-center gap-2">
-            <span class="text-gray-400 text-xl sm:text-2xl font-medium">PH</span>
+        <a href="{{ route('home') }}" class="flex items-center gap-2">
+            @include('partials.logo', ['class' => 'h-10 sm:h-11 w-auto'])
             <h1 class="text-xl sm:text-2xl font-bold text-gray-900">HanapBuh.AI</h1>
-        </div>
+        </a>
 
         <!-- Center: Navigation Links (Desktop) -->
         <nav class="hidden md:flex absolute left-1/2 transform -translate-x-1/2">

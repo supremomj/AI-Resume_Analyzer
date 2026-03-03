@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>HanapBuh.AI - Career Matching Platform</title>
   <meta name="description" content="AI-powered job matching platform for the Philippines. Upload your resume and find the perfect career opportunities.">
+  <link rel="icon" type="image/png" href="{{ asset('images/logo.png') }}">
 
   {{-- Vite entry points --}}
   @vite(['resources/css/app.css','resources/js/app.js'])
@@ -22,7 +23,7 @@
       }
     }
 
-    
+    image.png
     @keyframes fadeIn {
       from { opacity: 0; }
       to { opacity: 1; }

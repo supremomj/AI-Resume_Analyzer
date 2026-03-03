@@ -14,12 +14,12 @@ class ResumeAIService
     {
         // Get Flask API URL from .env (default: http://localhost:8502)
         $this->apiUrl = env('AI_FLASK_API_URL', 'http://localhost:8502');
-        
+
         Log::info('ResumeAIService initialized', [
             'api_url' => $this->apiUrl,
         ]);
     }
-    
+
     /**
      * Get the Flask API URL
      */
@@ -27,7 +27,48 @@ class ResumeAIService
     {
         return $this->apiUrl;
     }
-    
+
+    /**
+     * Batch AI match: send resume context + all jobs to Flask for semantic scoring.
+     * Returns array of ['job_index' => int, 'match_score' => int] or null on failure.
+     */
+    public function batchMatchJobs(array $resumeContext, array $jobs): ?array
+    {
+        try {
+            // Prepare minimal job data to send (title + description only)
+            $jobPayloads = [];
+            foreach ($jobs as $job) {
+                $jobPayloads[] = [
+                    'title' => $job['title'] ?? '',
+                    'description' => substr($job['description'] ?? '', 0, 500),
+                ];
+            }
+
+            $response = Http::timeout(30) // Allow more time for batch AI processing
+                ->post("{$this->apiUrl}/batch_match", [
+                    'resume_context' => $resumeContext,
+                    'jobs' => $jobPayloads,
+                ]);
+
+            if ($response->successful()) {
+                $data = $response->json();
+                Log::info('Batch AI matching successful', [
+                    'jobs_scored' => count($data['results'] ?? []),
+                ]);
+                return $data['results'] ?? null;
+            }
+
+            Log::warning('Batch AI match API returned error', [
+                'status' => $response->status(),
+                'body' => substr($response->body(), 0, 300),
+            ]);
+            return null;
+        } catch (\Exception $e) {
+            Log::error('Batch AI match failed', ['error' => $e->getMessage()]);
+            return null;
+        }
+    }
+
     /**
      * Test if Flask API is accessible
      */
@@ -43,16 +84,16 @@ class ResumeAIService
             $result = curl_exec($ch);
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             curl_close($ch);
-            
+
             // If we get any response (even 404/405), the server is running
             $isReachable = ($httpCode > 0);
-            
+
             Log::info('Flask API connection test', [
                 'url' => $this->apiUrl,
                 'http_code' => $httpCode,
                 'reachable' => $isReachable,
             ]);
-            
+
             return $isReachable;
         } catch (\Exception $e) {
             Log::error('Flask API connection test failed', [
@@ -74,38 +115,38 @@ class ResumeAIService
                 Log::error('Invalid resume path detected (directory traversal)', ['path' => $resumePath]);
                 return null;
             }
-            
+
             // Ensure path starts with 'resumes/' directory
             if (strpos($resumePath, 'resumes/') !== 0) {
                 Log::error('Invalid resume path detected (not in resumes directory)', ['path' => $resumePath]);
                 return null;
             }
-            
+
             // Ensure path is within resumes directory
             $fullPath = storage_path('app/public/' . $resumePath);
             $realPath = realpath($fullPath);
             $basePath = realpath(storage_path('app/public/resumes'));
-            
+
             // Verify file is within the resumes directory
             if ($realPath === false || strpos($realPath, $basePath) !== 0) {
                 Log::error('Resume file path traversal attempt', ['path' => $resumePath]);
                 return null;
             }
-            
+
             if (!file_exists($realPath)) {
                 Log::error('Resume file not found', ['path' => $realPath]);
                 return null;
             }
-            
+
             // Verify it's actually a file
             if (!is_file($realPath)) {
                 Log::error('Resume path is not a file', ['path' => $realPath]);
                 return null;
             }
-            
+
             // Use the real path for file operations
             $fullPath = $realPath;
-            
+
             // Try to analyze - connection test might fail even if API is running, so we'll try anyway
             // The actual API call will fail gracefully if Flask isn't running
 
@@ -115,21 +156,21 @@ class ResumeAIService
                 'file_path' => $fullPath,
                 'file_size' => filesize($fullPath),
             ]);
-            
+
             // Prepare file for upload
             $fileName = basename($fullPath);
-            
+
             Log::info('Preparing file for Flask API', [
                 'file_name' => $fileName,
                 'file_path' => $fullPath,
                 'file_size_bytes' => filesize($fullPath),
                 'file_size_mb' => round(filesize($fullPath) / 1024 / 1024, 2),
             ]);
-            
+
             // Validate file size before reading (prevent memory exhaustion)
             $fileSize = filesize($fullPath);
             $maxFileSize = 10 * 1024 * 1024; // 10MB max
-            
+
             if ($fileSize > $maxFileSize) {
                 Log::error('Resume file too large', [
                     'file_size' => $fileSize,
@@ -137,14 +178,14 @@ class ResumeAIService
                 ]);
                 return null;
             }
-            
+
             // Read file contents safely
             $fileContents = @file_get_contents($fullPath);
             if ($fileContents === false) {
                 Log::error('Failed to read resume file', ['path' => $fullPath]);
                 return null;
             }
-            
+
             // Use file path directly with attach() - Laravel will handle the multipart upload
             $response = Http::timeout(120) // Increased timeout for AI processing
                 ->attach(
@@ -152,7 +193,7 @@ class ResumeAIService
                     $fileContents,
                     $fileName
                 )->post("{$this->apiUrl}/predict");
-            
+
             Log::info('Flask API Response', [
                 'url' => "{$this->apiUrl}/predict",
                 'status' => $response->status(),
@@ -164,10 +205,10 @@ class ResumeAIService
 
             if ($response->successful()) {
                 $data = $response->json();
-                
+
                 // Check which Flask API version is running
                 $apiVersion = $data['api_version'] ?? 'UNKNOWN (old flask_api.py?)';
-                
+
                 Log::info('AI Resume Analysis Success', [
                     'resume_path' => $resumePath,
                     'api_version' => $apiVersion,
@@ -178,7 +219,7 @@ class ResumeAIService
                     'ph_salary_range' => $data['ph_salary_range'] ?? 'NOT IN RESPONSE',
                     'ph_experience_level' => $data['ph_experience_level'] ?? 'NOT IN RESPONSE',
                 ]);
-                
+
                 // Warn if using old API
                 if (!isset($data['api_version']) || strpos($apiVersion, 'v2.0') === false) {
                     Log::warning('⚠️ WARNING: Flask API appears to be running OLD code!');
@@ -192,7 +233,7 @@ class ResumeAIService
             } else {
                 $errorBody = $response->body();
                 $errorPreview = strlen($errorBody) > 500 ? substr($errorBody, 0, 500) . '...' : $errorBody;
-                
+
                 Log::error('AI Resume Analysis Failed', [
                     'status' => $response->status(),
                     'body' => $errorPreview,
@@ -201,7 +242,7 @@ class ResumeAIService
                     'file_exists' => file_exists($fullPath),
                     'file_size' => file_exists($fullPath) ? filesize($fullPath) : 0,
                 ]);
-                
+
                 // Return error data so controller can handle it
                 return ['error' => 'Flask API returned status ' . $response->status() . ': ' . $errorPreview];
             }
@@ -210,7 +251,7 @@ class ResumeAIService
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
-            
+
             return null;
         }
     }
@@ -238,13 +279,44 @@ class ResumeAIService
                     return false;
                 }
                 $terms = [
-                    'bachelor', 'master', 'doctor', 'degree', 'engineering', 'science',
-                    'technology', 'management', 'accountancy', 'accounting', 'finance',
-                    'education', 'psychology', 'nursing', 'pharmacy', 'communication',
-                    'journalism', 'mathematics', 'statistics', 'business', 'administration',
-                    'economics', 'marketing', 'civil', 'mechanical', 'electrical', 'computer',
-                    'information', 'systems', 'hospitality', 'tourism', 'biology', 'chemistry',
-                    'physics', 'public health', 'political science', 'criminology', 'analytics',
+                    'bachelor',
+                    'master',
+                    'doctor',
+                    'degree',
+                    'engineering',
+                    'science',
+                    'technology',
+                    'management',
+                    'accountancy',
+                    'accounting',
+                    'finance',
+                    'education',
+                    'psychology',
+                    'nursing',
+                    'pharmacy',
+                    'communication',
+                    'journalism',
+                    'mathematics',
+                    'statistics',
+                    'business',
+                    'administration',
+                    'economics',
+                    'marketing',
+                    'civil',
+                    'mechanical',
+                    'electrical',
+                    'computer',
+                    'information',
+                    'systems',
+                    'hospitality',
+                    'tourism',
+                    'biology',
+                    'chemistry',
+                    'physics',
+                    'public health',
+                    'political science',
+                    'criminology',
+                    'analytics',
                     'data science'
                 ];
                 foreach ($terms as $term) {
@@ -262,15 +334,15 @@ class ResumeAIService
                 foreach ($data['education'] as $edu) {
                     if (is_array($edu)) {
                         foreach ($edu as $val) {
-                            if ($looksLikeDegree($val)) {
+                            if (is_string($val) && strlen($val) < 100 && $looksLikeDegree($val)) {
                                 return trim($val);
                             }
                         }
-                    } elseif (is_string($edu) && $looksLikeDegree($edu)) {
+                    } elseif (is_string($edu) && strlen($edu) < 100 && $looksLikeDegree($edu)) {
                         return trim($edu);
                     }
                 }
-            } elseif (!empty($data['education']) && is_string($data['education']) && $looksLikeDegree($data['education'])) {
+            } elseif (!empty($data['education']) && is_string($data['education']) && strlen($data['education']) < 100 && $looksLikeDegree($data['education'])) {
                 return trim($data['education']);
             }
 

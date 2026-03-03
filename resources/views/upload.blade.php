@@ -248,13 +248,13 @@
                                                         $confidence = is_array($rf) ? ($rf['confidence'] ?? 0) : 1.0;
                                                         $isPrimary = $index === 0;
                                                     @endphp
-                                                    <div class="flex items-center justify-between">
-                                                        <span class="text-sm {{ $isPrimary ? 'font-bold text-[#1193d4]' : 'font-semibold text-gray-700' }}">
+                                                    <div class="flex items-center justify-between p-2 {{ $isPrimary ? 'bg-blue-50 border border-blue-200' : 'bg-gray-50 border border-gray-200' }} rounded-lg">
+                                                        <div class="flex items-center gap-2">
                                                             @if($isPrimary)
-                                                                <span class="text-xs text-blue-500 mr-1">#1</span>
+                                                                <span class="text-xs font-bold text-blue-600">#1</span>
                                                             @endif
-                                                            {{ $field }}
-                                                        </span>
+                                                            <span class="text-sm {{ $isPrimary ? 'font-bold text-[#1193d4]' : 'font-semibold text-gray-700' }}">{{ $field }}</span>
+                                                        </div>
                                                         @if(is_array($rf) && isset($rf['confidence']))
                                                             <span class="text-xs text-gray-500">{{ round($rf['confidence'] * 100, 0) }}%</span>
                                                         @endif
@@ -529,7 +529,7 @@
                                 
                                 <!-- Extracted Information -->
                                 @php
-                                    // Extract Program/Degree with minimal filtering; prefer AI-provided degree field
+                                    // Extract Program/Degree strictly relying on AI-provided fields to prevent huge text block leaks
                                     $degreeProgram = null;
 
                                     // 1) Trust the explicit degree/program returned by AI first
@@ -539,56 +539,21 @@
                                         }
                                     }
 
-                                    // Helper to check if text looks like a degree (basic keywords or abbreviations)
-                                    $looksLikeDegree = function ($text) {
-                                        if (!is_string($text)) return false;
-                                        $v = strtolower(trim($text));
-                                        if ($v === '' || preg_match('/@/', $v)) return false;
-
-                                        $terms = [
-                                            'bachelor', 'master', 'doctor', 'degree', 'engineering', 'science',
-                                            'technology', 'management', 'accountancy', 'accounting', 'finance',
-                                            'education', 'psychology', 'nursing', 'pharmacy', 'communication',
-                                            'journalism', 'mathematics', 'statistics', 'business', 'administration',
-                                            'economics', 'marketing', 'civil', 'mechanical', 'electrical', 'computer',
-                                            'information', 'systems', 'hospitality', 'tourism', 'biology', 'chemistry',
-                                            'physics', 'public health', 'political science', 'criminology', 'analytics',
-                                            'data science'
-                                        ];
-
-                                        foreach ($terms as $term) {
-                                            if (str_contains($v, $term)) {
-                                                return true;
-                                            }
-                                        }
-
-                                        // Common abbreviations
-                                        if (preg_match('/\b(bsit|bscs|bsis|bsa|bsba|bsit|bsce|bsie|bsme|bsee|bsn|bsmt|bspsych|mba|jd|md|mscs|msit|ms|ma)\b/i', $v)) {
-                                            return true;
-                                        }
-
-                                        return false;
-                                    };
-
-                                    // 2) Scan education entries if no explicit degree set
+                                    // 2) Safe fallback: Check education entries but limit string length to < 100 chars to avoid rendering paragraphs
                                     if (!$degreeProgram && isset($user->ai_analysis['education']) && is_array($user->ai_analysis['education'])) {
                                         foreach ($user->ai_analysis['education'] as $edu) {
                                             if (is_array($edu)) {
                                                 foreach ($edu as $val) {
-                                                    if (!$degreeProgram && $looksLikeDegree($val)) {
+                                                    if (is_string($val) && strlen($val) < 100 && preg_match('/\b(bachelor|master|doctor|bs|ba|mba|phd)\b/i', $val)) {
                                                         $degreeProgram = trim($val);
+                                                        break 2;
                                                     }
                                                 }
-                                            } elseif (is_string($edu) && $looksLikeDegree($edu)) {
+                                            } elseif (is_string($edu) && strlen($edu) < 100 && preg_match('/\b(bachelor|master|doctor|bs|ba|mba|phd)\b/i', $edu)) {
                                                 $degreeProgram = trim($edu);
+                                                break;
                                             }
-                                            if ($degreeProgram) break;
                                         }
-                                    }
-
-                                    // 3) If education is a single string blob
-                                    if (!$degreeProgram && isset($user->ai_analysis['education']) && is_string($user->ai_analysis['education']) && $looksLikeDegree($user->ai_analysis['education'])) {
-                                        $degreeProgram = trim($user->ai_analysis['education']);
                                     }
                                 @endphp
 

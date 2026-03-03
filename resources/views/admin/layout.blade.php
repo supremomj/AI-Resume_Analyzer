@@ -7,6 +7,9 @@
 
     <title>Admin Panel - {{ config('app.name', 'Laravel') }}</title>
 
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ asset('images/logo.png') }}">
+
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
@@ -27,7 +30,7 @@
             <div class="p-6">
                 <h1 class="text-2xl font-bold mb-8">
                     <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2">
-                        <span class="text-[#1193d4]">PH</span>
+                        @include('partials.logo', ['class' => 'h-10 w-auto'])
                         <span>Admin Panel</span>
                     </a>
                 </h1>

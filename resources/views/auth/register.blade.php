@@ -5,6 +5,7 @@
   <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
   <title>HanapBuh.AI - Register</title>
   <meta name="description" content="Create your account on HanapBuh.AI and start your journey to finding the perfect job match in the Philippines.">
+  <link rel="icon" type="image/png" href="{{ asset('images/logo.png') }}">
 
   <!-- Google Font -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet"/>
@@ -115,13 +116,8 @@
     <main class="w-full md:w-1/2 flex items-center justify-center p-4 md:p-8 overflow-y-auto">
       <div class="w-full max-w-md bg-white dark:bg-[#0f161a] rounded-2xl shadow-xl p-6 md:p-8 fade-in">
         <div class="mb-8 text-center">
-          <div class="flex items-center justify-center gap-2 mb-4">
-            <div class="w-12 h-12 bg-[#1193d4] rounded-full flex items-center justify-center shadow-lg">
-              <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path fill-rule="evenodd" clip-rule="evenodd"
-                      d="M12 2a10 10 0 100 20 10 10 0 000-20zm-1 13h2v2h-2v-2zm0-8h2v6h-2V7z"/>
-              </svg>
-            </div>
+          <div class="flex items-center justify-center gap-3 mb-4">
+            @include('partials.logo', ['class' => 'h-16 w-auto'])
             <span class="text-2xl font-bold text-gray-900 dark:text-white">HanapBuh.AI</span>
           </div>
           <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Create your account</h2>

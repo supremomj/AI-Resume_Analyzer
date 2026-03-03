@@ -25,6 +25,11 @@ return [
         'country' => 'ph', // Philippines
     ],
 
+    'jsearch' => [
+        'enabled' => env('JSEARCH_API_ENABLED', false),
+        'api_key' => env('JSEARCH_API_KEY', ''),
+    ],
+
     'jooble' => [
         'enabled' => env('JOOBLE_API_ENABLED', false),
         'api_key' => env('JOOBLE_API_KEY', ''),

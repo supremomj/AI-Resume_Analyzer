@@ -2,10 +2,10 @@
   <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative">
     <div class="flex items-center justify-between h-16">
       <!-- Left: Logo -->
-      <div class="flex items-center gap-2 text-primary">
-        <span class="text-gray-400 text-2xl font-medium">PH</span>
-        <h1 class="text-2xl font-bold text-white">HanapBuh.AI</h1>
-      </div>
+      <a href="{{ route('home') }}" class="flex items-center gap-2">
+        @include('partials.logo', ['class' => 'h-10 sm:h-11 w-auto'])
+        <h1 class="text-xl sm:text-2xl font-bold text-white">HanapBuh.AI</h1>
+      </a>
 
       <!-- Middle: Centered navbar links -->
       <nav class="absolute left-1/2 transform -translate-x-1/2">

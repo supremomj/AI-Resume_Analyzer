@@ -5,6 +5,7 @@
   <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
   <title>Verify Your Email - HanapBuh.AI</title>
   <meta name="description" content="Verify your email address with OTP code to complete your registration on HanapBuh.AI.">
+  <link rel="icon" type="image/png" href="{{ asset('images/logo.png') }}">
 
   <!-- Google Font -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet"/>
@@ -43,6 +44,9 @@
     <div class="bg-white rounded-2xl shadow-xl p-8 border border-gray-200">
       <!-- Logo/Header -->
       <div class="text-center mb-8">
+        <div class="flex justify-center mb-4">
+          @include('partials.logo', ['class' => 'h-16 w-auto'])
+        </div>
         <h2 class="text-3xl font-extrabold text-gray-900 mb-2">
           Verify Your Email
         </h2>

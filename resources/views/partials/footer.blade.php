@@ -2,7 +2,10 @@
 <footer class="bg-gray-900 text-white py-12 w-full">
   <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-8">
     <div>
-      <h1 class="text-xl font-semibold">HanapBuh.AI</h1>
+      <div class="flex items-center gap-2 mb-2">
+        @include('partials.logo', ['class' => 'h-11 w-auto'])
+        <h1 class="text-xl font-semibold">HanapBuh.AI</h1>
+      </div>
       <p class="text-sm opacity-70 mt-2">
         Your AI-powered job-matching platform. Connecting talent with opportunities.
       </p>
