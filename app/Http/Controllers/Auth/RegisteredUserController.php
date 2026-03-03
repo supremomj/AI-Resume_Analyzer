@@ -34,7 +34,7 @@ class RegisteredUserController extends Controller
         $request->validate([
             'first_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s\-\'\.]+$/'],
             'last_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s\-\'\.]+$/'],
-            'email' => ['required', 'string', 'lowercase', 'email:rfc', 'max:255', 'unique:'.User::class],
+            'email' => ['required', 'string', 'lowercase', 'email:rfc', 'max:255', 'unique:' . User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults(), 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/'],
             'contact_number' => ['nullable', 'string', 'max:20', 'regex:/^(09|\+639)\d{9}$/'],
             'address' => ['nullable', 'string', 'max:500'],
@@ -50,7 +50,7 @@ class RegisteredUserController extends Controller
 
         // Generate 6-digit OTP
         $otp = str_pad((string) random_int(100000, 999999), 6, '0', STR_PAD_LEFT);
-        
+
         $user = User::create([
             'name' => $request->first_name . ' ' . $request->last_name,
             'first_name' => $request->first_name,
@@ -66,7 +66,7 @@ class RegisteredUserController extends Controller
         // Send OTP email immediately (real-time, synchronous)
         $emailSent = false;
         $emailError = null;
-        
+
         try {
             // Send immediately without queuing for real-time delivery
             // Using notifyNow() ensures instant synchronous sending
@@ -103,26 +103,39 @@ class RegisteredUserController extends Controller
         // Check if mail is configured (not using 'log' driver)
         $mailDriver = config('mail.default');
         $isLogDriver = $mailDriver === 'log';
-        
+
         // Redirect to OTP verification page
         $redirect = redirect()->route('verify.email.show')
             ->with('email', $user->email);
-        
+
         if ($emailSent && !$isLogDriver) {
             // Email sent successfully via SMTP
             $redirect->with('status', 'Registration successful! Please check your email for the OTP code.');
         } elseif ($isLogDriver) {
-            // If using log driver, show OTP on screen for development
-            $redirect->with('status', 'Registration successful!')
-                ->with('otp_display', $otp)
-                ->with('warning', 'Email is configured to log only. Please configure SMTP in .env file to receive emails. Your OTP code is: ' . $otp);
+            // If using log driver, only show OTP on screen for local development
+            if (config('app.env') === 'local') {
+                $redirect->with('status', 'Registration successful!')
+                    ->with('otp_display', $otp)
+                    ->with('warning', 'Email is configured to log only. Please configure SMTP in .env file to receive emails. Your OTP code is: ' . $otp);
+            } else {
+                // In production, NEVER expose the OTP on screen even if log driver is mistakenly used.
+                $redirect->with('status', 'Registration successful! However, we could not send the email.')
+                    ->with('error', 'Email system is misconfigured for production. Please contact support.');
+            }
         } else {
-            // Email failed but not using log driver - show OTP and setup instructions
-            $redirect->with('status', 'Registration successful!')
-                ->with('otp_display', $otp)
-                ->with('error', 'Email not configured. Run: php artisan email:setup gmail');
+            // Email failed but not using log driver
+            if (config('app.env') === 'local') {
+                // Show OTP and setup instructions in local development
+                $redirect->with('status', 'Registration successful!')
+                    ->with('otp_display', $otp)
+                    ->with('error', 'Email fails to send. Run: php artisan email:setup gmail');
+            } else {
+                // In production, NEVER expose the OTP on screen.
+                $redirect->with('status', 'Registration successful! However, we could not send the email.')
+                    ->with('error', 'Email delivery failed. Please contact support or try to resend the OTP later.');
+            }
         }
-        
+
         return $redirect;
     }
 }
