@@ -51,6 +51,9 @@ RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist
 # Copy the rest of the application
 COPY . .
 
+# Create .env file (actual values come from Render environment variables)
+RUN touch .env
+
 # Finish composer install
 RUN composer dump-autoload --optimize
 
