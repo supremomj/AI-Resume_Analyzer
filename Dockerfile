@@ -40,29 +40,16 @@ RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Install Node.js and npm (for Vite build)
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-    && apt-get install -y nodejs \
-    && npm install -g npm@latest
-
 WORKDIR /var/www/html
 
-# Copy package.json and install frontend dependencies
-COPY package.json package-lock.json* ./
-RUN npm ci || npm install
-
-# Copy composer files
+# Copy composer files first (for better Docker caching)
 COPY composer.json composer.lock ./
 
-# Install backend dependencies (no dev packages for production)
+# Install dependencies (no dev packages for production)
 RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist
 
 # Copy the rest of the application
 COPY . .
-
-# Build frontend assets for production
-RUN npm run build
-RUN rm -rf node_modules
 
 # Create .env file (actual values come from Render environment variables)
 RUN touch .env

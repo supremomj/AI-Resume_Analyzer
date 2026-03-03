@@ -105,36 +105,11 @@ class RegisteredUserController extends Controller
         $isLogDriver = $mailDriver === 'log';
 
         // Redirect to OTP verification page
+        // DEVELOPMENT MODE: Always show OTP on screen
         $redirect = redirect()->route('verify.email.show')
-            ->with('email', $user->email);
-
-        if ($emailSent && !$isLogDriver) {
-            // Email sent successfully via SMTP
-            $redirect->with('status', 'Registration successful! Please check your email for the OTP code.');
-        } elseif ($isLogDriver) {
-            // If using log driver, only show OTP on screen for local development
-            if (config('app.env') === 'local') {
-                $redirect->with('status', 'Registration successful!')
-                    ->with('otp_display', $otp)
-                    ->with('warning', 'Email is configured to log only. Please configure SMTP in .env file to receive emails. Your OTP code is: ' . $otp);
-            } else {
-                // In production, NEVER expose the OTP on screen even if log driver is mistakenly used.
-                $redirect->with('status', 'Registration successful! However, we could not send the email.')
-                    ->with('error', 'Email system is misconfigured for production. Please contact support.');
-            }
-        } else {
-            // Email failed but not using log driver
-            if (config('app.env') === 'local') {
-                // Show OTP and setup instructions in local development
-                $redirect->with('status', 'Registration successful!')
-                    ->with('otp_display', $otp)
-                    ->with('error', 'Email fails to send. Run: php artisan email:setup gmail');
-            } else {
-                // In production, NEVER expose the OTP on screen.
-                $redirect->with('status', 'Registration successful! However, we could not send the email.')
-                    ->with('error', 'Email delivery failed. Please contact support or try to resend the OTP later.');
-            }
-        }
+            ->with('email', $user->email)
+            ->with('otp_display', $otp)
+            ->with('status', 'Registration successful! Your OTP code is shown below.');
 
         return $redirect;
     }
