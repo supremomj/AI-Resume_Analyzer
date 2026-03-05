@@ -1,14 +1,19 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_','-', app()->getLocale()) }}">
   <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HanapBuh.AI - Career Matching Platform</title>
-  <meta name="description" content="AI-powered job matching platform for the Philippines. Upload your resume and find the perfect career opportunities.">
-  <link rel="icon" type="image/png" href="{{ asset('images/logo.png') }}">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>HanapBuh.AI - Career Matching Platform</title>
+    <meta name="description" content="AI-powered job matching platform for the Philippines. Upload your resume and find the perfect career opportunities.">
+    <meta property="og:title" content="HanapBuh.AI - Career Matching Platform">
+    <meta property="og:description" content="AI-powered job matching platform for the Philippines. Upload your resume and find the perfect career opportunities.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="{{ asset('images/logo.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('images/logo.png') }}">
 
-  {{-- Vite entry points --}}
-  @vite(['resources/css/app.css','resources/js/app.js'])
+    {{-- Vite entry points --}}
+    @vite(['resources/css/app.css','resources/js/app.js'])
 
   <style>
     html { scroll-behavior: smooth; }
@@ -23,7 +28,6 @@
       }
     }
 
-    image.png
     @keyframes fadeIn {
       from { opacity: 0; }
       to { opacity: 1; }
@@ -41,7 +45,8 @@
       border-color: #ef4444 !important;
     }
     .input-error:focus {
-      ring-color: #ef4444 !important;
+      outline-color: #ef4444 !important;
+      box-shadow: 0 0 0 2px #ef4444;
     }
   </style>
 </head>
@@ -136,37 +141,21 @@
         <!-- Team Members -->
         <div class="flex flex-col md:flex-row gap-6 justify-center mb-16">
           <div class="bg-white dark:bg-background-dark border border-gray-200 dark:border-gray-800 p-6 rounded-xl shadow-lg w-full md:w-1/3 hover:transform hover:scale-105 transition-all duration-300 ease-in-out fade-in-up delay-100">
-            <img src="https://i.pravatar.cc/100?img=1" class="w-20 h-20 rounded-full mx-auto mb-4 object-cover ring-2 ring-primary/20" alt="Sophia Reyes - Co-Founder & Lead Developer">
-            <h3 class="font-semibold text-gray-900 dark:text-white text-lg mb-1">Sophia Reyes</h3>
-            <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">Co-Founder &amp; Lead Developer</p>
-            <div class="space-y-1">
-              <p class="text-sm text-gray-600 dark:text-gray-400">
-                <a href="mailto:sophia.reyes@email.com" class="hover:text-primary transition-colors">sophia.reyes@email.com</a>
-              </p>
-              <p class="text-sm text-gray-600 dark:text-gray-400">
-                <a href="tel:+639171234567" class="hover:text-primary transition-colors">+63 917 123 4567</a>
-              </p>
-              <p class="text-sm">
-                <a href="https://linkedin.com/in/sophiareyes" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline focus:outline-none focus:ring-2 focus:ring-primary rounded">LinkedIn Profile</a>
-              </p>
-            </div>
+            <img src="https://i.pravatar.cc/100?img=1" class="w-20 h-20 rounded-full mx-auto mb-4 object-cover ring-2 ring-primary/20" alt="Mario John Santiano - Co-Founder & Developer and AI Specialist" loading="lazy">
+            <h3 class="font-semibold text-gray-900 dark:text-white text-lg mb-1">Mario John Santiano</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">Co-Founder &amp; Developer and AI Specialist</p>
+            <p class="text-sm">
+              <a href="https://www.linkedin.com/in/mario-john-santiano-3189b32b1/" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline focus:outline-none focus:ring-2 focus:ring-primary rounded">LinkedIn Profile</a>
+            </p>
           </div>
 
           <div class="bg-white dark:bg-background-dark border border-gray-200 dark:border-gray-800 p-6 rounded-xl shadow-lg w-full md:w-1/3 hover:transform hover:scale-105 transition-all duration-300 ease-in-out fade-in-up delay-200">
-            <img src="https://i.pravatar.cc/100?img=2" class="w-20 h-20 rounded-full mx-auto mb-4 object-cover ring-2 ring-primary/20" alt="Miguel Santos - Co-Founder & AI Specialist">
-            <h3 class="font-semibold text-gray-900 dark:text-white text-lg mb-1">Miguel Santos</h3>
-            <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">Co-Founder &amp; AI Specialist</p>
-            <div class="space-y-1">
-              <p class="text-sm text-gray-600 dark:text-gray-400">
-                <a href="mailto:miguel.santos@email.com" class="hover:text-primary transition-colors">miguel.santos@email.com</a>
-              </p>
-              <p class="text-sm text-gray-600 dark:text-gray-400">
-                <a href="tel:+639189876543" class="hover:text-primary transition-colors">+63 918 987 6543</a>
-              </p>
-              <p class="text-sm">
-                <a href="https://linkedin.com/in/miguelsantos" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline focus:outline-none focus:ring-2 focus:ring-primary rounded">LinkedIn Profile</a>
-              </p>
-            </div>
+            <img src="https://i.pravatar.cc/100?img=2" class="w-20 h-20 rounded-full mx-auto mb-4 object-cover ring-2 ring-primary/20" alt="Kenneth Aricheta - Co-Founder & Developer" loading="lazy">
+            <h3 class="font-semibold text-gray-900 dark:text-white text-lg mb-1">Kenneth Aricheta</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">Co-Founder &amp; Developer</p>
+            <p class="text-sm">
+              <a href="https://www.linkedin.com/in/kenneth-aricheta-6097ba366/" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline focus:outline-none focus:ring-2 focus:ring-primary rounded">LinkedIn Profile</a>
+            </p>
           </div>
         </div>
 
