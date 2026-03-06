@@ -23,6 +23,8 @@ class User extends Authenticatable
         'first_name',
         'last_name',
         'email',
+        'google_id',
+        'google_token',
         'password',
         'role',
         'contact_number',
@@ -158,7 +160,7 @@ class User extends Authenticatable
         $percentage = $maxScore > 0 ? round(($totalScore / $maxScore) * 100) : 0;
 
         // Determine level
-        $level = match(true) {
+        $level = match (true) {
             $percentage >= 90 => 'Expert',
             $percentage >= 70 => 'Advanced',
             $percentage >= 50 => 'Intermediate',

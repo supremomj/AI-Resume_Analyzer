@@ -85,7 +85,7 @@
       @if(session('status'))
         <div class="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl">
           <p class="text-sm text-green-800 font-medium flex items-center">
-            <span class="material-symbols-outlined mr-2">check_circle</span>
+            <span class="material-symbols-outlined mr-2"></span>
             {{ session('status') }}
           </p>
         </div>

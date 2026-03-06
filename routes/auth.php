@@ -9,10 +9,16 @@ use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\Auth\SocialiteController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
+    Route::get('auth/google', [SocialiteController::class, 'redirectToGoogle'])
+        ->name('auth.google');
+
+    Route::get('auth/google/callback', [SocialiteController::class, 'handleGoogleCallback']);
+
     Route::get('register', [RegisteredUserController::class, 'create'])
         ->name('register');
 
@@ -21,10 +27,10 @@ Route::middleware('guest')->group(function () {
     // Email verification with OTP (must be before the auth middleware routes)
     Route::get('verify-email-otp', [EmailVerificationController::class, 'show'])
         ->name('verify.email.show');
-    
+
     Route::post('verify-email-otp', [EmailVerificationController::class, 'verify'])
         ->name('verify.email.verify');
-    
+
     Route::post('resend-otp', [EmailVerificationController::class, 'resend'])
         ->name('verify.email.resend');
 
