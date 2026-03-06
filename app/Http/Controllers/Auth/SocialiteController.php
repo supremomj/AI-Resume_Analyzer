@@ -19,7 +19,10 @@ class SocialiteController extends Controller
      */
     public function redirectToGoogle(): RedirectResponse
     {
-        return Socialite::driver('google')->redirect();
+        return Socialite::driver('google')
+            ->scopes(['email', 'profile'])
+            ->stateless()
+            ->redirect();
     }
 
     /**
@@ -31,7 +34,7 @@ class SocialiteController extends Controller
     {
         try {
             /** @var \Laravel\Socialite\Two\User $googleUser */
-            $googleUser = Socialite::driver('google')->user();
+            $googleUser = Socialite::driver('google')->stateless()->user();
         } catch (\Exception $e) {
             return redirect()->route('login')->withErrors(['email' => 'Google authentication failed. Please try again.']);
         }

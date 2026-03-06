@@ -22,27 +22,27 @@ Route::get('/dashboard', function () {
 
 // Auth-required (user) routes - must be verified to access
 Route::middleware(['auth', 'verified'])->group(function () {
-        // Profile management
-        Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
-        Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
-        Route::patch('/profile', [ProfileController::class, 'update'])
-            ->middleware('throttle:10,1') // Limit profile updates
-            ->name('profile.update');
-        Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    // Profile management
+    Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
+    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])
+        ->middleware('throttle:10,1') // Limit profile updates
+        ->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-        // Settings management
-        Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
-        Route::patch('/settings', [SettingsController::class, 'update'])
-            ->middleware('throttle:10,1') // Limit settings updates
-            ->name('settings.update');
-        Route::get('/settings/export', [SettingsController::class, 'export'])->name('settings.export');
+    // Settings management
+    Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
+    Route::patch('/settings', [SettingsController::class, 'update'])
+        ->middleware('throttle:10,1') // Limit settings updates
+        ->name('settings.update');
+    Route::get('/settings/export', [SettingsController::class, 'export'])->name('settings.export');
 
     // Home (main user landing)
     Route::get('/home', function () {
         $user = auth()->user()->fresh();
         $profileStrength = $user->getProfileStrength();
         $bookmarkCount = $user->bookmarks()->count();
-        
+
         return view('home', [
             'profileStrength' => $profileStrength,
             'bookmarkCount' => $bookmarkCount,
@@ -52,10 +52,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Jobs page (user-only) - now with real job fetching
     Route::get('/jobs', [JobController::class, 'index'])->name('jobs');
     Route::get('/api/jobs/home', [JobController::class, 'getJobsForHome'])->name('jobs.home');
-    
+
     // Job Bookmarks
     Route::get('/bookmarks', [BookmarkController::class, 'show'])->name('bookmarks');
-    
+
     // Job Bookmarks API (with rate limiting)
     Route::middleware('throttle:60,1')->group(function () {
         Route::get('/api/bookmarks', [BookmarkController::class, 'index'])->name('bookmarks.index');
@@ -71,15 +71,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/api/job-views/clear', [JobViewHistoryController::class, 'clearHistory'])->name('job-views.clear');
     });
 
-        // Resume upload page & handler
-        Route::get('/resume/upload', function () {
-            // Refresh user data to get latest AI analysis
-            $user = auth()->user()->fresh();
-            return view('upload', ['user' => $user]);
-        })->name('resume.upload');
-        Route::post('/resume/upload', [ResumeController::class, 'upload'])
-            ->middleware('throttle:5,1') // Limit to 5 uploads per minute
-            ->name('resume.upload.save');
+    // Resume upload page & handler
+    Route::get('/resume/upload', function () {
+        // Refresh user data to get latest AI analysis
+        $user = auth()->user()->fresh();
+        return view('upload', ['user' => $user]);
+    })->name('resume.upload');
+    Route::post('/resume/upload', [ResumeController::class, 'upload'])
+        ->middleware('throttle:5,1') // Limit to 5 uploads per minute
+        ->name('resume.upload.save');
 });
 
 // Profile images (public access with security)
@@ -108,4 +108,4 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
 });
 
 // Auth scaffolding
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
