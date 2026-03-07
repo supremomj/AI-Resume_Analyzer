@@ -36,7 +36,8 @@ class SocialiteController extends Controller
             /** @var \Laravel\Socialite\Two\User $googleUser */
             $googleUser = Socialite::driver('google')->stateless()->user();
         } catch (\Exception $e) {
-            return redirect()->route('login')->withErrors(['email' => 'Google authentication failed. Please try again.']);
+            \Illuminate\Support\Facades\Log::error('Google Auth Error: ' . $e->getMessage(), ['exception' => $e]);
+            return redirect()->route('login')->withErrors(['email' => 'Google authentication failed: ' . $e->getMessage()]);
         }
 
         // Find or create user
