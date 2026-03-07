@@ -81,8 +81,8 @@
     <main class="w-full md:w-1/2 flex items-center justify-center p-8">
       <div class="w-full max-w-md bg-white dark:bg-[#0f161a] rounded-2xl shadow-xl p-8">
         <div class="mb-8 text-center">
-          <div class="flex items-center justify-center gap-2 mb-4">
-            @include('partials.logo', ['class' => 'h-10 sm:h-12 w-auto'])
+          <div class="flex items-center justify-center gap-1.5 mb-4">
+            @include('partials.logo', ['class' => 'h-14 sm:h-16 w-auto transform -translate-y-0.5'])
             <span class="text-2xl font-bold text-gray-900 dark:text-white">HanapBuh.AI</span>
           </div>
           <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Sign in to your account</h2>

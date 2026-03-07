@@ -22,8 +22,8 @@
 <body class="font-sans text-gray-900 antialiased">
     <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100 dark:bg-gray-900">
         <div>
-            <a href="/" class="flex items-center justify-center gap-2">
-                @include('partials.logo', ['class' => 'h-10 sm:h-12 w-auto'])
+            <a href="/" class="flex items-center justify-center gap-1.5">
+                @include('partials.logo', ['class' => 'h-14 sm:h-16 w-auto transform -translate-y-0.5'])
                 <span class="text-xl font-bold text-gray-900 dark:text-white">HanapBuh.AI</span>
             </a>
         </div>
