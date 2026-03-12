@@ -352,6 +352,19 @@ class JobFetchingService
             'Cloud Computing' => 'Cloud Engineer',
             'Game Development' => 'Game Developer',
             'Embedded Systems' => 'Embedded Systems Engineer',
+            'Business Administration' => 'Business Operations',
+            'Accounting and Finance' => 'Finance Accounting',
+            'Marketing' => 'Marketing',
+            'Engineering' => 'Engineer',
+            'Education' => 'Education Teacher',
+            'Healthcare / Nursing' => 'Healthcare Medical',
+            'Hospitality and Tourism' => 'Hospitality',
+            'Architecture' => 'Architecture',
+            'Psychology' => 'Psychology HR',
+            'Agriculture' => 'Agriculture',
+            'Arts and Multimedia' => 'Arts Design',
+            'Communications' => 'Communications',
+            'Logistics and Supply Chain' => 'Logistics Supply Chain',
         ];
 
         // Use the mapped term or fall back to the raw field
@@ -1808,6 +1821,19 @@ class JobFetchingService
             'ui-ux development' => ['ui designer', 'ux designer', 'ui/ux', 'user interface', 'user experience', 'interface designer', 'ux/ui', 'designer'],
             'android development' => ['android developer', 'android', 'mobile developer', 'kotlin', 'android app', 'mobile app developer'],
             'ios development' => ['ios developer', 'swift', 'ios app', 'apple developer', 'iphone developer'],
+            'business administration' => ['business manager', 'operations', 'business analyst', 'administrator', 'manager'],
+            'accounting and finance' => ['accountant', 'finance', 'financial analyst', 'bookkeeper', 'audit'],
+            'marketing' => ['marketing', 'seo', 'social media', 'digital marketing', 'content creator'],
+            'engineering' => ['engineer', 'civil engineer', 'mechanical engineer', 'electrical engineer'],
+            'education' => ['teacher', 'instructor', 'educator', 'tutor', 'professor', 'instructional designer'],
+            'healthcare / nursing' => ['nurse', 'rn', 'healthcare', 'medical', 'clinic', 'hospital'],
+            'hospitality and tourism' => ['hotel', 'hospitality', 'tourism', 'travel', 'resort', 'front desk'],
+            'architecture' => ['architect', 'interior designer', 'cad', 'draftsman'],
+            'psychology' => ['hr', 'human resources', 'psychologist', 'recruiter', 'counselor'],
+            'agriculture' => ['agriculture', 'farm', 'agronomist', 'agriculturist'],
+            'arts and multimedia' => ['graphic designer', 'video editor', 'multimedia', 'artist', 'creative'],
+            'communications' => ['pr', 'public relations', 'communications', 'media', 'writer'],
+            'logistics and supply chain' => ['logistics', 'supply chain', 'warehouse', 'delivery', 'procurement'],
         ];
 
         // Check for exact match
@@ -2134,7 +2160,7 @@ class JobFetchingService
             ],
         ];
 
-        $titles = $jobTitles[$field] ?? ['Software Developer', 'IT Professional', 'Tech Specialist'];
+        $titles = $jobTitles[$field] ?? ['Professional', 'Specialist', 'Consultant'];
 
         // Sample companies in Philippines
         $companies = [

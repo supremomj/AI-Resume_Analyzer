@@ -85,11 +85,72 @@ class User extends Authenticatable
     }
 
     /**
+     * Get the posts created by the user.
+     */
+    public function posts(): HasMany
+    {
+        return $this->hasMany(Post::class)->latest();
+    }
+
+    /**
+     * Get the messages sent by the user.
+     */
+    public function sentMessages(): HasMany
+    {
+        return $this->hasMany(Message::class, 'sender_id');
+    }
+
+    /**
+     * Get the messages received by the user.
+     */
+    public function receivedMessages(): HasMany
+    {
+        return $this->hasMany(Message::class, 'receiver_id');
+    }
+
+    public function likes(): HasMany
+    {
+        return $this->hasMany(Like::class);
+    }
+
+    public function comments(): HasMany
+    {
+        return $this->hasMany(Comment::class);
+    }
+
+    /**
      * Get the job view history for the user.
      */
     public function jobViewHistory(): HasMany
     {
         return $this->hasMany(JobViewHistory::class);
+    }
+
+    /**
+     * Connections initiated by the user.
+     */
+    public function sentRequests(): HasMany
+    {
+        return $this->hasMany(Connection::class, 'user_id');
+    }
+
+    /**
+     * Connections received by the user.
+     */
+    public function receivedRequests(): HasMany
+    {
+        return $this->hasMany(Connection::class, 'connected_user_id');
+    }
+
+    /**
+     * Get all accepted connections.
+     */
+    public function connections()
+    {
+        $sent = $this->sentRequests()->where('status', 'accepted')->get()->pluck('connected_user_id');
+        $received = $this->receivedRequests()->where('status', 'accepted')->get()->pluck('user_id');
+        
+        return User::whereIn('id', $sent->merge($received))->get();
     }
 
     /**

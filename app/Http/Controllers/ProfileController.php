@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
@@ -13,10 +14,31 @@ use Illuminate\View\View;
 class ProfileController extends Controller
 {
     // Show the profile (read-only)
-    public function show(Request $request): View
+    public function show(Request $request, User $user = null): View
     {
-        $user = $request->user();
-        return view('profile.show', compact('user'));
+        // If no user provided, show the authenticated user
+        if (!$user) {
+            $user = $request->user();
+        }
+
+        $connectionStatus = null;
+        if (Auth::check() && Auth::id() !== $user->id) {
+            $connection = \App\Models\Connection::where(function($query) use ($user) {
+                $query->where('user_id', Auth::id())->where('connected_user_id', $user->id);
+            })->orWhere(function($query) use ($user) {
+                $query->where('user_id', $user->id)->where('connected_user_id', Auth::id());
+            })->first();
+
+            if ($connection) {
+                if ($connection->status === 'pending') {
+                    $connectionStatus = ($connection->user_id === Auth::id()) ? 'requested' : 'pending_acceptance';
+                } else {
+                    $connectionStatus = $connection->status;
+                }
+            }
+        }
+
+        return view('profile.show', compact('user', 'connectionStatus'));
     }
 
     // Show the edit form

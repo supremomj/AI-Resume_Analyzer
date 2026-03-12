@@ -7,7 +7,11 @@ use App\Http\Controllers\JobController;
 use App\Http\Controllers\BookmarkController;
 use App\Http\Controllers\JobViewHistoryController;
 use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\ConnectionController;
+use App\Http\Controllers\FeedController;
 use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\MessagingController;
+use App\Http\Controllers\NotificationController;
 use Illuminate\Support\Facades\Route;
 
 // Public landing
@@ -23,8 +27,8 @@ Route::get('/dashboard', function () {
 // Auth-required (user) routes - must be verified to access
 Route::middleware(['auth', 'verified'])->group(function () {
     // Profile management
-    Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::get('/profile/{user?}', [ProfileController::class, 'show'])->name('profile.show');
     Route::patch('/profile', [ProfileController::class, 'update'])
         ->middleware('throttle:10,1') // Limit profile updates
         ->name('profile.update');
@@ -80,6 +84,29 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/resume/upload', [ResumeController::class, 'upload'])
         ->middleware('throttle:5,1') // Limit to 5 uploads per minute
         ->name('resume.upload.save');
+
+    // Messaging
+    Route::get('/messaging/{user?}', [MessagingController::class, 'index'])->name('messaging.index');
+    Route::post('/messaging/{user}', [MessagingController::class, 'store'])->name('messaging.store');
+
+    // Notifications
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
+    Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');
+
+    // Feed
+    Route::get('/feed', [FeedController::class, 'index'])->name('feed');
+    Route::post('/feed', [FeedController::class, 'store'])->name('posts.store');
+    Route::delete('/feed/{post}', [FeedController::class, 'destroy'])->name('posts.destroy');
+    Route::post('/posts/{post}/like', [FeedController::class, 'toggleLike'])->name('posts.like');
+    Route::post('/posts/{post}/comment', [FeedController::class, 'storeComment'])->name('posts.comment');
+
+    // Connections
+    Route::get('/connections', [ConnectionController::class, 'index'])->name('connections.index');
+    Route::post('/connections/request/{user}', [ConnectionController::class, 'sendRequest'])->name('connections.request');
+    Route::post('/connections/accept/{connection}', [ConnectionController::class, 'acceptRequest'])->name('connections.accept');
+    Route::post('/connections/reject/{connection}', [ConnectionController::class, 'rejectRequest'])->name('connections.reject');
+    Route::delete('/connections/remove/{user}', [ConnectionController::class, 'removeConnection'])->name('connections.remove');
 });
 
 // Profile images (public access with security)

@@ -579,20 +579,6 @@
                                             <span class="text-xs font-semibold text-gray-600">Email:</span>
                                             <span class="text-xs text-gray-800 text-right break-all">{{ $user->ai_analysis['email'] ?? $user->email ?? 'Not found' }}</span>
                                         </div>
-                                        
-                                        @if(isset($user->ai_analysis['experience']) && count($user->ai_analysis['experience']) > 0)
-                                            <div class="flex justify-between">
-                                                <span class="text-xs font-semibold text-gray-600">Experience:</span>
-                                                <span class="text-xs text-gray-800">{{ count($user->ai_analysis['experience']) }} position(s)</span>
-                                            </div>
-                                        @endif
-                                        
-                                        @if(isset($user->ai_analysis['education']) && count($user->ai_analysis['education']) > 0)
-                                            <div class="flex justify-between">
-                                                <span class="text-xs font-semibold text-gray-600">Education:</span>
-                                                <span class="text-xs text-gray-800">{{ count($user->ai_analysis['education']) }} entry(ies)</span>
-                                            </div>
-                                        @endif
                                     </div>
                                 </div>
                             </div>

@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Storage;
 @endphp
 
 @section('content')
-<div class="flex flex-col min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-gray-100 font-display">
+<div x-data="{ showDeleteModal: {{ $errors->userDeletion->isNotEmpty() ? 'true' : 'false' }} }" class="flex flex-col min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-gray-100 font-display text-gray-900">
     <div class="layout-container flex h-full grow flex-col">
         <main class="flex flex-1 justify-center py-8 px-4 sm:px-6 lg:px-8">
             <div class="w-full max-w-4xl mx-auto">
@@ -333,8 +333,104 @@ use Illuminate\Support\Facades\Storage;
                         </div>
                     </form>
                 </div>
+
+                <!-- Danger Zone Section -->
+                <div class="mt-8 bg-white rounded-2xl shadow-xl overflow-hidden border border-red-200">
+                    <div class="p-6 sm:p-8 border-b border-red-100 bg-red-50/30">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-3xl text-red-600">report_problem</span>
+                            <h2 class="text-2xl font-bold text-gray-900">{{ __('settings.danger_zone') ?? 'Danger Zone' }}</h2>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-1 ml-12">{{ __('settings.delete_account_desc') }}</p>
+                    </div>
+
+                    <div class="p-6 sm:p-8">
+                        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-lg border-2 border-red-100 bg-red-50/50">
+                            <div class="flex items-center gap-3">
+                                <span class="material-symbols-outlined text-red-600 text-2xl">delete_forever</span>
+                                <div>
+                                    <h3 class="text-base font-semibold text-gray-900">{{ __('settings.delete_account') }}</h3>
+                                    <p class="text-sm text-gray-600">{{ __('Once your account is deleted, all of its resources and data will be permanently deleted.') }}</p>
+                                </div>
+                            </div>
+                            
+                            <button type="button" @click="showDeleteModal = true"
+                                    class="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700 transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105">
+                                <span class="material-symbols-outlined text-lg">delete</span>
+                                {{ __('settings.delete_button') }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </main>
+    </div>
+
+    <!-- Delete Account Modal -->
+    <div x-show="showDeleteModal" 
+         class="fixed inset-0 z-50 overflow-y-auto" 
+         x-cloak
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0">
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 transition-opacity" aria-hidden="true" @click="showDeleteModal = false">
+                <div class="absolute inset-0 bg-gray-900 opacity-75"></div>
+            </div>
+
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+            <div class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full"
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                 x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                 x-transition:leave="transition ease-in duration-200"
+                 x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                 x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
+                
+                <form method="post" action="{{ route('profile.destroy') }}" class="p-6 sm:p-8">
+                    @csrf
+                    @method('delete')
+
+                    <div class="flex items-center gap-3 mb-4 text-red-600">
+                        <span class="material-symbols-outlined text-3xl">warning</span>
+                        <h2 class="text-2xl font-bold">{{ __('Are you sure?') }}</h2>
+                    </div>
+
+                    <p class="text-gray-600 mb-6 font-medium">
+                        {{ __('Once your account is deleted, all of its data will be permanently cleared. Please enter your password to confirm.') }}
+                    </p>
+
+                    <div class="mb-6">
+                        <label for="delete_password" class="block text-sm font-semibold text-gray-700 mb-2">Password</label>
+                        <div class="relative">
+                            <span class="material-symbols-outlined absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">lock</span>
+                            <input type="password" name="password" id="delete_password"
+                                   class="w-full pl-10 pr-4 py-3 rounded-lg border-2 border-gray-300 focus:border-red-500 focus:ring-2 focus:ring-red-200 transition-all duration-200"
+                                   placeholder="Enter your password" required>
+                        </div>
+                        @if($errors->userDeletion->has('password'))
+                            <p class="text-sm text-red-600 mt-2">{{ $errors->userDeletion->first('password') }}</p>
+                        @endif
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row justify-end gap-3">
+                        <button type="button" @click="showDeleteModal = false"
+                                class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg border-2 border-gray-300 bg-white text-gray-700 font-semibold hover:bg-gray-50 transition-all duration-200">
+                            {{ __('Cancel') }}
+                        </button>
+                        <button type="submit" 
+                                class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700 transition-all duration-200 shadow-lg hover:shadow-xl">
+                            <span class="material-symbols-outlined text-lg">delete_forever</span>
+                            {{ __('Delete Account Permanently') }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 </div>
 

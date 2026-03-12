@@ -352,6 +352,7 @@ class ResumeAIService
         $degreeVal = $deriveDegree($analysis);
 
         return [
+            'api_version' => $analysis['api_version'] ?? null,
             'skills' => $analysis['skills'] ?? [],
             'experience' => $analysis['experience'] ?? [],
             'education' => $analysis['education'] ?? [],
