@@ -34,10 +34,20 @@
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
     }
-    .fade-in { animation: fadeIn 0.5s ease-out; }
-    .input-error { border-color: #ef4444 !important; }
-    .input-error:focus { ring-color: #ef4444 !important; }
-    
+    .fade-in {
+      animation: fadeIn 0.5s ease-out;
+    }
+    .step-content {
+      animation: slideIn 0.3s ease-in-out;
+    }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .input-error {
+      border-color: #ef4444 !important;
+      animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+    }
     /* Smooth focus transitions */
     input:focus, textarea:focus, select:focus {
       transition: all 0.2s ease-in-out;
@@ -115,209 +125,172 @@
     <!-- RIGHT: Register Form -->
     <main class="w-full md:w-1/2 flex items-center justify-center p-4 md:p-8 overflow-y-auto">
       <div class="w-full max-w-md bg-white dark:bg-[#0f161a] rounded-2xl shadow-xl p-6 md:p-8 fade-in">
-        <div class="mb-8 text-center">
-          <div class="flex items-center justify-center gap-1.5 mb-4">
-            @include('partials.logo', ['class' => 'h-14 sm:h-16 w-auto transform -translate-y-0.5'])
-            <span class="text-2xl font-bold text-gray-900 dark:text-white">HanapBuh.AI</span>
+        <!-- Progress Indicator -->
+        <div class="mb-10">
+          <div class="flex items-center justify-between relative">
+            <!-- Progress Line -->
+            <div class="absolute top-1/2 left-0 w-full h-0.5 bg-gray-200 dark:bg-gray-800 -translate-y-1/2 z-0"></div>
+            <div id="progressLine" class="absolute top-1/2 left-0 w-0 h-0.5 bg-primary -translate-y-1/2 z-0 transition-all duration-500"></div>
+            
+            <!-- Step 1 -->
+            <div class="relative z-10 flex flex-col items-center">
+              <div id="stepDot1" class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold text-sm transition-all duration-300 ring-4 ring-white dark:ring-[#0f161a]">1</div>
+              <span class="text-[10px] mt-2 font-semibold uppercase tracking-wider text-primary">Personal</span>
+            </div>
+            <!-- Step 2 -->
+            <div class="relative z-10 flex flex-col items-center">
+              <div id="stepDot2" class="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-800 text-gray-500 flex items-center justify-center font-bold text-sm transition-all duration-300 ring-4 ring-white dark:ring-[#0f161a]">2</div>
+              <span class="text-[10px] mt-2 font-semibold uppercase tracking-wider text-gray-400">Contact</span>
+            </div>
+            <!-- Step 3 -->
+            <div class="relative z-10 flex flex-col items-center">
+              <div id="stepDot3" class="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-800 text-gray-500 flex items-center justify-center font-bold text-sm transition-all duration-300 ring-4 ring-white dark:ring-[#0f161a]">3</div>
+              <span class="text-[10px] mt-2 font-semibold uppercase tracking-wider text-gray-400">Security</span>
+            </div>
           </div>
-          <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Create your account</h2>
-          <p class="text-sm text-gray-600 dark:text-gray-400">Join thousands of job seekers finding their dream career</p>
         </div>
 
-        <!-- Error Messages -->
-        @if ($errors->any())
-          <div class="mb-4 p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
-            <div class="flex items-start gap-2">
-              <svg class="w-5 h-5 text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-              </svg>
-              <div class="flex-1">
-                <p class="text-sm font-medium text-red-800 dark:text-red-300 mb-1">Please fix the following errors:</p>
-                <ul class="text-sm text-red-700 dark:text-red-400 list-disc list-inside space-y-1">
-                  @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                  @endforeach
-                </ul>
-              </div>
-            </div>
-          </div>
-        @endif
-
-        @if (session('status'))
-          <div class="mb-4 p-4 rounded-xl bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
-            <div class="flex items-center gap-2">
-              <svg class="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-              </svg>
-              <p class="text-sm text-green-800 dark:text-green-300">{{ session('status') }}</p>
-            </div>
-          </div>
-        @endif
-
-        <form id="registerForm" action="{{ route('register') }}" method="POST" class="space-y-5">
+        <form id="registerForm" action="{{ route('register') }}" method="POST" class="space-y-6">
           @csrf
 
-          <!-- Name Fields -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <!-- STEP 1: Personal Info -->
+          <div id="stepContent1" class="step-content space-y-5 transition-all duration-300">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label for="first_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">First Name <span class="text-red-500">*</span></label>
+                <input id="first_name" name="first_name" type="text" required
+                       value="{{ old('first_name') }}"
+                       class="block w-full rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#0f161a] text-gray-900 dark:text-white focus:ring-2 focus:ring-[#1193d4] focus:border-[#1193d4] p-3 transition-all duration-200 hover:border-[#1193d4]/50 @error('first_name') input-error border-red-500 @enderror"
+                       placeholder="Juan" autocomplete="given-name">
+                @error('first_name')
+                  <p class="mt-1 text-sm text-red-600 dark:text-red-400" role="alert">{{ $message }}</p>
+                @enderror
+              </div>
+              <div>
+                <label for="last_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Last Name <span class="text-red-500">*</span></label>
+                <input id="last_name" name="last_name" type="text" required
+                       value="{{ old('last_name') }}"
+                       class="block w-full rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#0f161a] text-gray-900 dark:text-white focus:ring-2 focus:ring-[#1193d4] focus:border-[#1193d4] p-3 transition-all duration-200 hover:border-[#1193d4]/50 @error('last_name') input-error border-red-500 @enderror"
+                       placeholder="Dela Cruz" autocomplete="family-name">
+                @error('last_name')
+                  <p class="mt-1 text-sm text-red-600 dark:text-red-400" role="alert">{{ $message }}</p>
+                @enderror
+              </div>
+            </div>
+
             <div>
-              <label for="first_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">First Name <span class="text-red-500">*</span></label>
-              <input id="first_name" name="first_name" type="text" required
-                     value="{{ old('first_name') }}"
-                     class="block w-full rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#0f161a] text-gray-900 dark:text-white focus:ring-2 focus:ring-[#1193d4] focus:border-[#1193d4] p-3 transition-all duration-200 hover:border-[#1193d4]/50 @error('first_name') input-error border-red-500 @enderror"
-                     placeholder="Juan"
-                     autocomplete="given-name"
-                     aria-invalid="@error('first_name') true @else false @enderror"
-                     aria-describedby="@error('first_name') first_name-error @enderror">
-              @error('first_name')
-                <p id="first_name-error" class="mt-1 text-sm text-red-600 dark:text-red-400" role="alert">{{ $message }}</p>
+              <label for="birth_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Birth Date <span class="text-red-500">*</span></label>
+              <input id="birth_date" name="birth_date" type="date" required
+                     value="{{ old('birth_date') }}"
+                     class="block w-full rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#0f161a] text-gray-900 dark:text-white focus:ring-2 focus:ring-[#1193d4] focus:border-[#1193d4] p-3 transition-all duration-200 hover:border-[#1193d4]/50 @error('birth_date') input-error border-red-500 @enderror">
+              @error('birth_date')
+                <p class="mt-1 text-sm text-red-600 dark:text-red-400" role="alert">{{ $message }}</p>
               @enderror
+              <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">You must be at least 18 years old to register.</p>
             </div>
-            <div>
-              <label for="last_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Last Name <span class="text-red-500">*</span></label>
-              <input id="last_name" name="last_name" type="text" required
-                     value="{{ old('last_name') }}"
-                     class="block w-full rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#0f161a] text-gray-900 dark:text-white focus:ring-2 focus:ring-[#1193d4] focus:border-[#1193d4] p-3 transition-all duration-200 hover:border-[#1193d4]/50 @error('last_name') input-error border-red-500 @enderror"
-                     placeholder="Dela Cruz"
-                     autocomplete="family-name"
-                     aria-invalid="@error('last_name') true @else false @enderror"
-                     aria-describedby="@error('last_name') last_name-error @enderror">
-              @error('last_name')
-                <p id="last_name-error" class="mt-1 text-sm text-red-600 dark:text-red-400" role="alert">{{ $message }}</p>
-              @enderror
-            </div>
-          </div>
 
-          <div>
-            <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email address <span class="text-red-500">*</span></label>
-            <input id="email" name="email" type="email" autocomplete="email" required
-                   value="{{ old('email') }}"
-                   class="block w-full rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#0f161a] text-gray-900 dark:text-white focus:ring-2 focus:ring-[#1193d4] focus:border-[#1193d4] p-3 transition-all duration-200 hover:border-[#1193d4]/50 @error('email') input-error border-red-500 @enderror"
-                   placeholder="you@example.com"
-                   aria-invalid="@error('email') true @else false @enderror"
-                   aria-describedby="@error('email') email-error @enderror">
-            @error('email')
-              <p id="email-error" class="mt-1 text-sm text-red-600 dark:text-red-400" role="alert">{{ $message }}</p>
-            @enderror
-          </div>
-
-          <div>
-            <label for="contact_number" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Contact Number</label>
-            <input id="contact_number" name="contact_number" type="tel" 
-                   value="{{ old('contact_number') }}"
-                   class="block w-full rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#0f161a] text-gray-900 dark:text-white focus:ring-2 focus:ring-[#1193d4] focus:border-[#1193d4] p-3 transition-all duration-200 hover:border-[#1193d4]/50 @error('contact_number') input-error border-red-500 @enderror"
-                   placeholder="+63 912 345 6789"
-                   autocomplete="tel"
-                   aria-invalid="@error('contact_number') true @else false @enderror"
-                   aria-describedby="@error('contact_number') contact_number-error @enderror">
-            @error('contact_number')
-              <p id="contact_number-error" class="mt-1 text-sm text-red-600 dark:text-red-400" role="alert">{{ $message }}</p>
-            @enderror
-          </div>
-
-          <div>
-            <label for="address" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Address</label>
-            <input id="address" name="address" type="text" 
-                   value="{{ old('address') }}"
-                   class="block w-full rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#0f161a] text-gray-900 dark:text-white focus:ring-2 focus:ring-[#1193d4] focus:border-[#1193d4] p-3 transition-all duration-200 hover:border-[#1193d4]/50 @error('address') input-error border-red-500 @enderror"
-                   placeholder="City, Province"
-                   autocomplete="street-address"
-                   aria-invalid="@error('address') true @else false @enderror"
-                   aria-describedby="@error('address') address-error @enderror">
-            @error('address')
-              <p id="address-error" class="mt-1 text-sm text-red-600 dark:text-red-400" role="alert">{{ $message }}</p>
-            @enderror
-          </div>
-
-          <div>
-            <label for="birth_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Birth Date <span class="text-red-500">*</span></label>
-            <input id="birth_date" name="birth_date" type="date" required
-                   value="{{ old('birth_date') }}"
-                   class="block w-full rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#0f161a] text-gray-900 dark:text-white focus:ring-2 focus:ring-[#1193d4] focus:border-[#1193d4] p-3 transition-all duration-200 hover:border-[#1193d4]/50 @error('birth_date') input-error border-red-500 @enderror"
-                   aria-invalid="@error('birth_date') true @else false @enderror"
-                   aria-describedby="@error('birth_date') birth_date-error @enderror">
-            @error('birth_date')
-              <p id="birth_date-error" class="mt-1 text-sm text-red-600 dark:text-red-400" role="alert">{{ $message }}</p>
-            @enderror
-            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">You must be at least 18 years old to register.</p>
-          </div>
-
-          <div>
-            <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Password <span class="text-red-500">*</span></label>
-            <div class="relative">
-              <input id="password" name="password" type="password" autocomplete="new-password" required
-                     class="block w-full rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#0f161a] text-gray-900 dark:text-white focus:ring-2 focus:ring-[#1193d4] focus:border-[#1193d4] p-3 pr-10 transition-all duration-200 hover:border-[#1193d4]/50 @error('password') input-error border-red-500 @enderror"
-                     placeholder="Create a strong password"
-                     aria-invalid="@error('password') true @else false @enderror"
-                     aria-describedby="@error('password') password-error @enderror">
-              <button type="button" id="togglePassword" 
-                      class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-[#1193d4] rounded p-1"
-                      aria-label="Toggle password visibility">
-                <svg id="eyeIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                </svg>
-                <svg id="eyeOffIcon" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
-                </svg>
-              </button>
-            </div>
-            @error('password')
-              <p id="password-error" class="mt-1 text-sm text-red-600 dark:text-red-400" role="alert">{{ $message }}</p>
-            @enderror
-          </div>
-
-          <div>
-            <label for="password_confirmation" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Confirm Password <span class="text-red-500">*</span></label>
-            <div class="relative">
-              <input id="password_confirmation" name="password_confirmation" type="password" autocomplete="new-password" required
-                     class="block w-full rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#0f161a] text-gray-900 dark:text-white focus:ring-2 focus:ring-[#1193d4] focus:border-[#1193d4] p-3 pr-10 transition-all duration-200 hover:border-[#1193d4]/50"
-                     placeholder="Re-enter your password">
-              <button type="button" id="togglePasswordConfirmation" 
-                      class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-primary rounded p-1"
-                      aria-label="Toggle password visibility">
-                <svg id="eyeIconConfirmation" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                </svg>
-                <svg id="eyeOffIconConfirmation" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
-                </svg>
+            <div class="pt-4">
+              <button type="button" onclick="nextStep(2)" class="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-primary text-white font-semibold py-3.5 px-6 hover:bg-[#0f83bd] transition-all shadow-lg transform hover:-translate-y-0.5">
+                Next: Contact Details
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
               </button>
             </div>
           </div>
 
-          <!-- Terms and Conditions Checkbox -->
-          <div class="flex items-start gap-3">
-            <input type="checkbox" id="terms" name="terms" value="1" 
-                   class="mt-0.5 w-5 h-5 rounded border-2 border-gray-400 text-[#1193d4] focus:ring-2 focus:ring-[#1193d4] cursor-pointer flex-shrink-0 @error('terms') border-red-500 @enderror"
-                   required
-                   aria-invalid="@error('terms') true @else false @enderror"
-                   aria-describedby="@error('terms') terms-error @enderror">
-            <div class="flex-1">
-              <label for="terms" class="text-sm text-gray-800 dark:text-gray-200 cursor-pointer leading-relaxed inline-block">
-                <span class="font-medium">I agree to the</span> 
-                <span class="text-red-500 font-bold">*</span>
-              </label>
-              <button type="button" id="openTermsModal" class="text-[#1193d4] hover:text-[#0f83bd] hover:underline font-semibold mx-1 transition-colors cursor-pointer bg-transparent border-none p-0" style="pointer-events: auto;">Terms and Conditions</button>
+          <!-- STEP 2: Contact Info -->
+          <div id="stepContent2" class="step-content hidden space-y-5 transition-all duration-300">
+            <div>
+              <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email address <span class="text-red-500">*</span></label>
+              <input id="email" name="email" type="email" autocomplete="email" required
+                     value="{{ old('email') }}"
+                     class="block w-full rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#0f161a] text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-primary p-3 transition-all duration-200 hover:border-primary/50 @error('email') input-error border-red-500 @enderror"
+                     placeholder="you@example.com">
+              @error('email')
+                <p class="mt-1 text-sm text-red-600 dark:text-red-400" role="alert">{{ $message }}</p>
+              @enderror
+            </div>
+
+            <div>
+              <label for="contact_number" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Contact Number</label>
+              <input id="contact_number" name="contact_number" type="tel" 
+                     value="{{ old('contact_number') }}"
+                     class="block w-full rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#0f161a] text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-primary p-3 transition-all duration-200 hover:border-primary/50 @error('contact_number') input-error border-red-500 @enderror"
+                     placeholder="+63 912 345 6789">
+              @error('contact_number')
+                <p class="mt-1 text-sm text-red-600 dark:text-red-400" role="alert">{{ $message }}</p>
+              @enderror
+            </div>
+
+            <div>
+              <label for="address" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Address</label>
+              <input id="address" name="address" type="text" 
+                     value="{{ old('address') }}"
+                     class="block w-full rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#0f161a] text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-primary p-3 transition-all duration-200 hover:border-primary/50 @error('address') input-error border-red-500 @enderror"
+                     placeholder="City, Province">
+              @error('address')
+                <p class="mt-1 text-sm text-red-600 dark:text-red-400" role="alert">{{ $message }}</p>
+              @enderror
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 pt-4">
+              <button type="button" onclick="nextStep(1)" class="inline-flex items-center justify-center gap-2 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 font-semibold py-3.5 px-6 hover:bg-gray-200 dark:hover:bg-gray-750 transition-all">
+                Back
+              </button>
+              <button type="button" onclick="nextStep(3)" class="inline-flex items-center justify-center gap-2 rounded-xl bg-primary text-white font-semibold py-3.5 px-6 hover:bg-[#0f83bd] transition-all shadow-lg transform hover:-translate-y-0.5">
+                Next: Security
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+              </button>
             </div>
           </div>
-          @error('terms')
-            <p id="terms-error" class="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center gap-1" role="alert">
-              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-              </svg>
-              {{ $message }}
-            </p>
-          @enderror
 
-          <button type="submit" id="submitBtn"
-                  class="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-[#1193d4] text-white font-semibold py-3.5 px-6 hover:bg-[#0f83bd] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#1193d4] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
-            <span id="submitText">Create Account</span>
-            <svg id="submitSpinner" class="hidden w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-          </button>
+          <!-- STEP 3: Security Info -->
+          <div id="stepContent3" class="step-content hidden space-y-5 transition-all duration-300">
+            <div>
+              <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Password <span class="text-red-500">*</span></label>
+              <div class="relative">
+                <input id="password" name="password" type="password" autocomplete="new-password" required
+                       class="block w-full rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#0f161a] text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-primary p-3 pr-10 transition-all duration-200 hover:border-primary/50 @error('password') input-error border-red-500 @enderror"
+                       placeholder="Create a strong password">
+                <button type="button" id="togglePassword" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none">
+                  <svg id="eyeIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                  <svg id="eyeOffIcon" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/></svg>
+                </button>
+              </div>
+              @error('password')
+                <p class="mt-1 text-sm text-red-600 dark:text-red-400" role="alert">{{ $message }}</p>
+              @enderror
+            </div>
+
+            <div>
+              <label for="password_confirmation" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Confirm Password <span class="text-red-500">*</span></label>
+              <input id="password_confirmation" name="password_confirmation" type="password" required
+                     class="block w-full rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#0f161a] text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-primary p-3 transition-all duration-200 hover:border-primary/50"
+                     placeholder="Re-enter password">
+            </div>
+
+            <div class="flex items-start gap-3">
+              <input type="checkbox" id="terms" name="terms" value="1" required class="mt-1 w-5 h-5 rounded border-gray-400 text-primary focus:ring-primary cursor-pointer">
+              <div class="flex-1">
+                <label for="terms" class="text-sm text-gray-800 dark:text-gray-200 leading-relaxed cursor-pointer">
+                  I agree to the <button type="button" id="openTermsModal" class="text-primary hover:underline font-semibold">Terms and Conditions</button>
+                </label>
+                @error('terms')
+                  <p class="mt-1 text-sm text-red-600 dark:text-red-400" role="alert">{{ $message }}</p>
+                @enderror
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 pt-4">
+              <button type="button" onclick="nextStep(2)" class="inline-flex items-center justify-center gap-2 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 font-semibold py-3.5 px-6 hover:bg-gray-200 dark:hover:bg-gray-750 transition-all">
+                Back
+              </button>
+              <button type="submit" id="submitBtn" class="inline-flex items-center justify-center gap-2 rounded-xl bg-primary text-white font-semibold py-3.5 px-6 hover:bg-[#0f83bd] transition-all shadow-lg transform hover:-translate-y-0.5">
+                <span id="submitText">Create Account</span>
+                <svg id="submitSpinner" class="hidden w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+              </button>
+            </div>
+          </div>
+        </form>
         </form>
 
         <p class="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
@@ -572,6 +545,92 @@
         eyeOffIcon.classList.toggle('hidden');
       });
     }
+
+    // Multi-step form logic
+    let currentStep = 1;
+    const totalSteps = 3;
+
+    window.nextStep = function(step) {
+      // Validate current step before proceeding
+      if (step > currentStep) {
+        if (!validateStep(currentStep)) return;
+      }
+
+      const prevStep = currentStep;
+      currentStep = step;
+
+      // Update UI
+      document.querySelectorAll('.step-content').forEach(content => content.classList.add('hidden'));
+      document.getElementById(`stepContent${currentStep}`).classList.remove('hidden');
+
+      // Update Dots and Progress Line
+      const progressLine = document.getElementById('progressLine');
+      const percentage = ((currentStep - 1) / (totalSteps - 1)) * 100;
+      progressLine.style.width = `${percentage}%`;
+
+      for (let i = 1; i <= totalSteps; i++) {
+        const dot = document.getElementById(`stepDot${i}`);
+        const label = dot.nextElementSibling;
+        
+        if (i < currentStep) {
+          // Completed steps
+          dot.classList.add('bg-primary', 'text-white');
+          dot.classList.remove('bg-gray-200', 'dark:bg-gray-800', 'text-gray-500');
+          dot.innerHTML = '<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>';
+          label.classList.add('text-primary');
+          label.classList.remove('text-gray-400');
+        } else if (i === currentStep) {
+          // Current step
+          dot.classList.add('bg-primary', 'text-white');
+          dot.classList.remove('bg-gray-200', 'dark:bg-gray-800', 'text-gray-500');
+          dot.innerHTML = i;
+          label.classList.add('text-primary');
+          label.classList.remove('text-gray-400');
+        } else {
+          // Future steps
+          dot.classList.add('bg-gray-200', 'dark:bg-gray-800', 'text-gray-500');
+          dot.classList.remove('bg-primary', 'text-white');
+          dot.innerHTML = i;
+          label.classList.add('text-gray-400');
+          label.classList.remove('text-primary');
+        }
+      }
+
+      // Smooth scroll to top of form
+      document.querySelector('main').scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function validateStep(step) {
+      const container = document.getElementById(`stepContent${step}`);
+      const inputs = container.querySelectorAll('input[required]');
+      let isValid = true;
+
+      inputs.forEach(input => {
+        if (!input.value.trim()) {
+          input.classList.add('border-red-500');
+          isValid = false;
+        } else {
+          input.classList.remove('border-red-500');
+        }
+      });
+
+      return isValid;
+    }
+
+    // Auto-detect server-side errors and show correct step
+    document.addEventListener('DOMContentLoaded', () => {
+      const stepsWithErrors = [];
+      for (let i = 1; i <= totalSteps; i++) {
+        const container = document.getElementById(`stepContent${i}`);
+        if (container.querySelector('.text-red-600, .text-red-400')) {
+          stepsWithErrors.push(i);
+        }
+      }
+
+      if (stepsWithErrors.length > 0) {
+        nextStep(stepsWithErrors[0]);
+      }
+    });
 
     if (togglePasswordConfirmation && passwordConfirmationInput) {
       togglePasswordConfirmation.addEventListener('click', () => {
