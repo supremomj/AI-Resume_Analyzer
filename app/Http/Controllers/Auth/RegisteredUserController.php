@@ -38,12 +38,14 @@ class RegisteredUserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults(), 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/'],
             'contact_number' => ['nullable', 'string', 'max:20', 'regex:/^(09|\+639)\d{9}$/'],
             'address' => ['nullable', 'string', 'max:500'],
+            'birth_date' => ['required', 'date', 'before:-18 years'],
             'terms' => ['required', 'accepted'],
         ], [
             'first_name.regex' => 'First name can only contain letters, spaces, hyphens, apostrophes, and periods.',
             'last_name.regex' => 'Last name can only contain letters, spaces, hyphens, apostrophes, and periods.',
             'password.regex' => 'Password must contain at least one uppercase letter, one lowercase letter, and one number.',
             'email.email' => 'Please provide a valid email address. All email domains are accepted, including .edu.ph, .com, .org, and others.',
+            'birth_date.before' => 'You must be at least 18 years old to create an account.',
             'terms.required' => 'You must accept the Terms and Conditions to create an account.',
             'terms.accepted' => 'You must accept the Terms and Conditions to create an account.',
         ]);
@@ -59,6 +61,7 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
             'contact_number' => $request->contact_number,
             'address' => $request->address,
+            'birth_date' => $request->birth_date,
             'email_verification_otp' => $otp,
             'email_verification_otp_expires_at' => now()->addMinutes(15),
         ]);
@@ -77,7 +80,7 @@ class RegisteredUserController extends Controller
                 'email' => $user->email,
                 'sent_at' => now()->toDateTimeString(),
             ]);
-        } catch (\Swift_TransportException $e) {
+        } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
             // SMTP connection error - likely missing credentials
             $emailError = 'SMTP connection failed. Please check your email configuration in .env file.';
             Log::error('SMTP connection failed for OTP email', [

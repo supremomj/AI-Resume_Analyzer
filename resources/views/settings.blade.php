@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div x-data="{ showDeleteModal: {{ $errors->userDeletion->isNotEmpty() ? 'true' : 'false' }} }" class="flex flex-col min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-gray-100 font-display text-gray-900">
+<div x-data="{ showDeleteModal: {{ $errors->userDeletion->isNotEmpty() ? 'true' : 'false' }} }" class="flex flex-col min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-gray-100 font-display">
     <div class="layout-container flex h-full grow flex-col">
         <main class="flex flex-1 justify-center py-8 px-4 sm:px-6 lg:px-8">
             <div class="w-full max-w-4xl mx-auto">
@@ -47,147 +47,7 @@
                     @csrf
                     @method('PATCH')
 
-                    <!-- Job Preferences Section -->
-                    <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200">
-                        <div class="p-6 sm:p-8 border-b border-gray-200 bg-gradient-to-r from-[#1193d4]/5 to-blue-50/50">
-                            <div class="flex items-center gap-3">
-                                <span class="material-symbols-outlined text-3xl text-[#1193d4]">work</span>
-                                <h2 class="text-2xl font-bold text-gray-900">{{ __('settings.job_preferences') }}</h2>
-                            </div>
-                            <p class="text-sm text-gray-600 mt-1 ml-12">{{ __('settings.job_preferences_subtitle') }}</p>
-                        </div>
 
-                        <div class="p-6 sm:p-8 space-y-6">
-                            <!-- Email Notifications Toggle -->
-                            <div class="flex items-start justify-between gap-4 p-4 rounded-lg border-2 border-gray-100 hover:border-[#1193d4]/30 transition-all duration-200">
-                                <div class="flex-1">
-                                    <div class="flex items-center gap-2 mb-1">
-                                        <span class="material-symbols-outlined text-[#1193d4]">notifications</span>
-                                        <label for="email_notifications" class="text-base font-semibold text-gray-900 cursor-pointer">
-                                            {{ __('settings.email_notifications') }}
-                                        </label>
-                                    </div>
-                                    <p class="text-sm text-gray-600 ml-7">{{ __('settings.email_notifications_desc') }}</p>
-                                </div>
-                                <label class="relative inline-flex items-center cursor-pointer">
-                                        <input type="checkbox" name="email_notifications" id="email_notifications" value="1"
-                                           class="sr-only peer"
-                                           {{ old('email_notifications', $user->email_notifications ?? true) ? 'checked' : '' }}>
-                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[#1193d4]/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#1193d4]"></div>
-                                </label>
-                            </div>
-
-                            <!-- Job Alert Frequency -->
-                            <div class="p-4 rounded-lg border-2 border-gray-100">
-                                <div class="flex items-center gap-2 mb-4">
-                                    <span class="material-symbols-outlined text-[#1193d4]">schedule</span>
-                                    <label class="text-base font-semibold text-gray-900">
-                                        {{ __('settings.alert_frequency') }}
-                                    </label>
-                                </div>
-                                <p class="text-sm text-gray-600 mb-4 ml-7">{{ __('settings.alert_frequency_desc') }}</p>
-                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 ml-7">
-                                    <label class="relative flex items-center p-3 rounded-lg border-2 cursor-pointer hover:border-[#1193d4]/50 transition-all duration-200 {{ old('alert_frequency', session('alert_frequency', 'daily')) === 'daily' ? 'border-[#1193d4] bg-[#1193d4]/5' : 'border-gray-200' }}">
-                                        <input type="radio" name="alert_frequency" value="daily" class="sr-only peer"
-                                               {{ old('alert_frequency', $user->alert_frequency ?? 'daily') === 'daily' ? 'checked' : '' }}>
-                                        <span class="material-symbols-outlined text-xl mr-2 text-[#1193d4]">today</span>
-                                        <span class="font-medium text-gray-900">{{ __('settings.frequency_daily') }}</span>
-                                    </label>
-                                    <label class="relative flex items-center p-3 rounded-lg border-2 cursor-pointer hover:border-[#1193d4]/50 transition-all duration-200 {{ old('alert_frequency', session('alert_frequency', 'daily')) === 'weekly' ? 'border-[#1193d4] bg-[#1193d4]/5' : 'border-gray-200' }}">
-                                        <input type="radio" name="alert_frequency" value="weekly" class="sr-only peer"
-                                               {{ old('alert_frequency', $user->alert_frequency ?? 'daily') === 'weekly' ? 'checked' : '' }}>
-                                        <span class="material-symbols-outlined text-xl mr-2 text-[#1193d4]">calendar_month</span>
-                                        <span class="font-medium text-gray-900">{{ __('settings.frequency_weekly') }}</span>
-                                    </label>
-                                    <label class="relative flex items-center p-3 rounded-lg border-2 cursor-pointer hover:border-[#1193d4]/50 transition-all duration-200 {{ old('alert_frequency', session('alert_frequency', 'daily')) === 'never' ? 'border-[#1193d4] bg-[#1193d4]/5' : 'border-gray-200' }}">
-                                        <input type="radio" name="alert_frequency" value="never" class="sr-only peer"
-                                               {{ old('alert_frequency', $user->alert_frequency ?? 'daily') === 'never' ? 'checked' : '' }}>
-                                        <span class="material-symbols-outlined text-xl mr-2 text-[#1193d4]">notifications_off</span>
-                                        <span class="font-medium text-gray-900">{{ __('settings.frequency_never') }}</span>
-                                    </label>
-                                </div>
-                            </div>
-
-                            <!-- Preferred Job Types -->
-                            <div class="p-4 rounded-lg border-2 border-gray-100">
-                                <div class="flex items-center gap-2 mb-4">
-                                    <span class="material-symbols-outlined text-[#1193d4]">category</span>
-                                    <label class="text-base font-semibold text-gray-900">
-                                        {{ __('settings.preferred_job_types') }}
-                                    </label>
-                                </div>
-                                <p class="text-sm text-gray-600 mb-4 ml-7">{{ __('settings.preferred_job_types_desc') }}</p>
-                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 ml-7">
-                                    @php
-                                        $jobTypes = ['Full-time', 'Part-time', 'Contract', 'Remote'];
-                                        $selectedTypes = old('job_types', $user->preferred_job_types ?? ['Full-time', 'Remote']);
-                                        if (is_string($selectedTypes)) {
-                                            $selectedTypes = json_decode($selectedTypes, true) ?? [];
-                                        }
-                                    @endphp
-                                    @foreach($jobTypes as $type)
-                                        <label class="relative flex items-center p-3 rounded-lg border-2 cursor-pointer hover:border-[#1193d4]/50 transition-all duration-200 {{ in_array($type, $selectedTypes) ? 'border-[#1193d4] bg-[#1193d4]/5' : 'border-gray-200' }}">
-                                            <input type="checkbox" name="job_types[]" value="{{ $type }}" class="sr-only peer"
-                                                   {{ in_array($type, $selectedTypes) ? 'checked' : '' }}>
-                                            <span class="material-symbols-outlined text-xl mr-2 text-[#1193d4]">{{ $type === 'Remote' ? 'home' : 'work' }}</span>
-                                            <span class="font-medium text-gray-900">{{ $type }}</span>
-                                        </label>
-                                    @endforeach
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Privacy & Security Section -->
-                    <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200">
-                        <div class="p-6 sm:p-8 border-b border-gray-200 bg-gradient-to-r from-[#1193d4]/5 to-blue-50/50">
-                            <div class="flex items-center gap-3">
-                                <span class="material-symbols-outlined text-3xl text-[#1193d4]">lock</span>
-                                <h2 class="text-2xl font-bold text-gray-900">{{ __('settings.privacy_security') }}</h2>
-                            </div>
-                            <p class="text-sm text-gray-600 mt-1 ml-12">{{ __('settings.privacy_security_subtitle') }}</p>
-                        </div>
-
-                        <div class="p-6 sm:p-8 space-y-6">
-                            <!-- Profile Visibility -->
-                            <div class="flex items-start justify-between gap-4 p-4 rounded-lg border-2 border-gray-100 hover:border-[#1193d4]/30 transition-all duration-200">
-                                <div class="flex-1">
-                                    <div class="flex items-center gap-2 mb-1">
-                                        <span class="material-symbols-outlined text-[#1193d4]">visibility</span>
-                                        <label for="profile_public" class="text-base font-semibold text-gray-900 cursor-pointer">
-                                            {{ __('settings.profile_public') }}
-                                        </label>
-                                    </div>
-                                    <p class="text-sm text-gray-600 ml-7">{{ __('settings.profile_public_desc') }}</p>
-                                </div>
-                                <label class="relative inline-flex items-center cursor-pointer">
-                                    <input type="checkbox" name="profile_public" id="profile_public" value="1"
-                                           class="sr-only peer"
-                                           {{ old('profile_public', $user->profile_public ?? false) ? 'checked' : '' }}>
-                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[#1193d4]/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#1193d4]"></div>
-                                </label>
-                            </div>
-
-                            <!-- Show Contact Info -->
-                            <div class="flex items-start justify-between gap-4 p-4 rounded-lg border-2 border-gray-100 hover:border-[#1193d4]/30 transition-all duration-200">
-                                <div class="flex-1">
-                                    <div class="flex items-center gap-2 mb-1">
-                                        <span class="material-symbols-outlined text-[#1193d4]">contact_phone</span>
-                                        <label for="show_contact" class="text-base font-semibold text-gray-900 cursor-pointer">
-                                            {{ __('settings.show_contact') }}
-                                        </label>
-                                    </div>
-                                    <p class="text-sm text-gray-600 ml-7">{{ __('settings.show_contact_desc') }}</p>
-                                </div>
-                                <label class="relative inline-flex items-center cursor-pointer">
-                                    <input type="checkbox" name="show_contact" id="show_contact" value="1"
-                                           class="sr-only peer"
-                                           {{ old('show_contact', $user->show_contact ?? false) ? 'checked' : '' }}>
-                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[#1193d4]/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#1193d4]"></div>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
 
                     <!-- Account Preferences Section -->
                     <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200">
@@ -200,24 +60,6 @@
                         </div>
 
                         <div class="p-6 sm:p-8 space-y-6">
-                            <!-- Profile Link -->
-                            <div class="p-4 rounded-lg border-2 border-gray-100 bg-[#1193d4]/5">
-                                <div class="flex items-center justify-between gap-4">
-                                    <div class="flex-1">
-                                        <div class="flex items-center gap-2 mb-1">
-                                            <span class="material-symbols-outlined text-[#1193d4]">account_circle</span>
-                                            <h3 class="text-base font-semibold text-gray-900">Personal Information</h3>
-                                        </div>
-                                        <p class="text-sm text-gray-600 ml-7">Update your name, photo, and contact details.</p>
-                                    </div>
-                                    <a href="{{ route('profile.edit') }}" 
-                                       class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white border-2 border-[#1193d4] text-[#1193d4] font-semibold hover:bg-[#1193d4] hover:text-white transition-all duration-200 shadow-sm">
-                                        <span class="material-symbols-outlined text-lg">edit</span>
-                                        Edit Profile
-                                    </a>
-                                </div>
-                            </div>
-
                             <!-- Language Preference -->
                             <div class="p-4 rounded-lg border-2 border-gray-100">
                                 <div class="flex items-center gap-2 mb-4">
@@ -238,27 +80,6 @@
                                 </div>
                             </div>
 
-                            <!-- Job Results Per Page -->
-                            <div class="p-4 rounded-lg border-2 border-gray-100">
-                                <div class="flex items-center gap-2 mb-4">
-                                    <span class="material-symbols-outlined text-[#1193d4]">view_list</span>
-                                    <label for="jobs_per_page" class="text-base font-semibold text-gray-900">
-                                        {{ __('settings.jobs_per_page') }}
-                                    </label>
-                                </div>
-                                <p class="text-sm text-gray-600 mb-3 ml-7">{{ __('settings.jobs_per_page_desc') }}</p>
-                                <div class="relative ml-7 max-w-xs">
-                                    <span class="material-symbols-outlined absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-xl">format_list_numbered</span>
-                                    <select name="jobs_per_page" id="jobs_per_page"
-                                            class="w-full pl-10 pr-4 py-3 rounded-lg border-2 border-gray-300 focus:border-[#1193d4] focus:ring-2 focus:ring-[#1193d4]/20 transition-all duration-200 appearance-none bg-white">
-                                        <option value="10" {{ old('jobs_per_page', $user->jobs_per_page ?? 20) == 10 ? 'selected' : '' }}>10</option>
-                                        <option value="20" {{ old('jobs_per_page', $user->jobs_per_page ?? 20) == 20 ? 'selected' : '' }}>20</option>
-                                        <option value="30" {{ old('jobs_per_page', $user->jobs_per_page ?? 20) == 30 ? 'selected' : '' }}>30</option>
-                                        <option value="50" {{ old('jobs_per_page', $user->jobs_per_page ?? 20) == 50 ? 'selected' : '' }}>50</option>
-                                    </select>
-                                    <span class="material-symbols-outlined absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none">arrow_drop_down</span>
-                                </div>
-                            </div>
                         </div>
                     </div>
 
@@ -424,12 +245,6 @@
         }
     }
 
-    // Confirm account deletion
-    function confirmDelete() {
-        if (confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
-            document.getElementById('delete-account-form').submit();
-        }
-    }
     
     // Form validation and loading state
     const form = document.getElementById('settings-form');

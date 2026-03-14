@@ -2,42 +2,53 @@
 
 namespace App\Notifications;
 
-use App\Models\User;
-use App\Models\Post;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 class SocialEngagement extends Notification
 {
     use Queueable;
 
-    protected $user;
-    protected $post;
-    protected $engagementType; // 'like' or 'comment'
-
-    public function __construct(User $user, Post $post, string $type)
+    /**
+     * Create a new notification instance.
+     */
+    public function __construct()
     {
-        $this->user = $user;
-        $this->post = $post;
-        $this->engagementType = $type;
+        //
     }
 
-    public function via($notifiable): array
+    /**
+     * Get the notification's delivery channels.
+     *
+     * @return array<int, string>
+     */
+    public function via(object $notifiable): array
     {
-        return ['database'];
+        return ['mail'];
     }
 
-    public function toArray($notifiable): array
+    /**
+     * Get the mail representation of the notification.
+     */
+    public function toMail(object $notifiable): MailMessage
     {
-        $action = $this->engagementType === 'like' ? 'liked your post.' : 'commented on your post.';
-        
+        return (new MailMessage)
+            ->line('The introduction to the notification.')
+            ->action('Notification Action', url('/'))
+            ->line('Thank you for using our application!');
+    }
+
+    /**
+     * Get the array representation of the notification.
+     *
+     * @return array<string, mixed>
+     */
+    public function toArray(object $notifiable): array
+    {
         return [
-            'type' => $this->engagementType,
-            'user_id' => $this->user->id,
-            'user_name' => $this->user->first_name . ' ' . $this->user->last_name,
-            'post_id' => $this->post->id,
-            'message' => $action,
-            'url' => route('feed'), // Ideally scroll to post but feed is fine
+            //
         ];
     }
 }

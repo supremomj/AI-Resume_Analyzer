@@ -28,25 +28,12 @@ class SettingsController extends Controller
         $user = $request->user()->fresh();
         
         $validated = $request->validate([
-            'email_notifications' => ['nullable', 'boolean'],
-            'alert_frequency' => ['nullable', 'in:daily,weekly,never'],
-            'job_types' => ['nullable', 'array'],
-            'job_types.*' => ['in:Full-time,Part-time,Contract,Remote'],
-            'profile_public' => ['nullable', 'boolean'],
-            'show_contact' => ['nullable', 'boolean'],
             'language' => ['nullable', 'in:en,tl'],
-            'jobs_per_page' => ['nullable', 'integer', 'in:10,20,30,50'],
         ]);
 
         // Update settings in database
         $settingsData = [
-            'email_notifications' => $validated['email_notifications'] ?? $user->email_notifications ?? true,
-            'alert_frequency' => $validated['alert_frequency'] ?? $user->alert_frequency ?? 'daily',
-            'preferred_job_types' => $validated['job_types'] ?? $user->preferred_job_types ?? ['Full-time', 'Remote'],
-            'profile_public' => $validated['profile_public'] ?? $user->profile_public ?? false,
-            'show_contact' => $validated['show_contact'] ?? $user->show_contact ?? false,
             'language' => $validated['language'] ?? $user->language ?? 'en',
-            'jobs_per_page' => isset($validated['jobs_per_page']) ? (int)$validated['jobs_per_page'] : ($user->jobs_per_page ?? 20),
         ];
 
         // Update user settings

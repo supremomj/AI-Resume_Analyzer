@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Storage;
 @endphp
 
 @section('content')
-<div x-data="{ showDeleteModal: {{ $errors->userDeletion->isNotEmpty() ? 'true' : 'false' }} }" class="flex flex-col min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-gray-100 font-display text-gray-900">
+<div x-data="{ showDeleteModal: {{ $errors->userDeletion->isNotEmpty() ? 'true' : 'false' }} }" class="flex flex-col min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-gray-100 font-display">
     <div class="layout-container flex h-full grow flex-col">
         <main class="flex flex-1 justify-center py-8 px-4 sm:px-6 lg:px-8">
             <div class="w-full max-w-4xl mx-auto">

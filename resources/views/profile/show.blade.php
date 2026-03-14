@@ -23,74 +23,9 @@
                                 {{ __('profile.edit_profile') }}
                             </a>
                         </div>
-                    @elseif(auth()->check())
-                        <div class="ml-12 sm:ml-0">
-                            @if($connectionStatus === 'accepted')
-                                <div class="flex gap-2">
-                                    <a href="{{ route('messaging.index', $user) }}" class="inline-flex items-center gap-2 px-6 py-2 rounded-full bg-white text-[#1193d4] text-sm font-bold border border-[#1193d4] hover:bg-blue-50 transition-all shadow-sm">
-                                        <span class="material-symbols-outlined text-xl">chat</span>
-                                        Message
-                                    </a>
-                                    <button class="inline-flex items-center gap-2 px-6 py-2 rounded-full bg-gray-100 text-gray-700 text-sm font-bold border border-gray-200 cursor-default" disabled>
-                                        <span class="material-symbols-outlined text-green-500 text-xl">check_circle</span>
-                                        Connected
-                                    </button>
-                                    <form action="{{ route('connections.remove', $user) }}" method="POST">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" onclick="return confirm('Remove this connection?')" 
-                                                class="p-2 rounded-full border border-gray-200 text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all">
-                                            <span class="material-symbols-outlined text-xl">person_remove</span>
-                                        </button>
-                                    </form>
-                                </div>
-                            @elseif($connectionStatus === 'requested')
-                                <button class="inline-flex items-center gap-2 px-6 py-2 rounded-full bg-gray-50 text-gray-400 text-sm font-bold border border-gray-200 cursor-default" disabled>
-                                    <span class="material-symbols-outlined text-xl">hourglass_top</span>
-                                    Pending
-                                </button>
-                            @elseif($connectionStatus === 'pending_acceptance')
-                                <div class="flex gap-2">
-                                    <form action="{{ route('connections.accept', $user->receivedRequests()->where('user_id', auth()->id())->first() ?? $user->sentRequests()->where('connected_user_id', auth()->id())->first()) }}" method="POST">
-                                        @csrf
-                                        <button type="submit" class="inline-flex items-center gap-2 px-6 py-2 rounded-full bg-[#1193d4] text-white text-sm font-bold hover:bg-[#0f83bd] transition-all shadow-md">
-                                            Accept
-                                        </button>
-                                    </form>
-                                    <form action="{{ route('connections.reject', $user->receivedRequests()->where('user_id', auth()->id())->first() ?? $user->sentRequests()->where('connected_user_id', auth()->id())->first()) }}" method="POST">
-                                        @csrf
-                                        <button type="submit" class="p-2 rounded-full border border-gray-200 text-gray-400 hover:bg-gray-50 transition-all">
-                                            <span class="material-symbols-outlined text-xl">close</span>
-                                        </button>
-                                    </form>
-                                </div>
-                            @else
-                                <form action="{{ route('connections.request', $user) }}" method="POST">
-                                    @csrf
-                                    <button type="submit" 
-                                            class="inline-flex items-center gap-2 px-8 py-2.5 rounded-full bg-[#1193d4] text-white text-sm font-bold hover:bg-[#0f83bd] transition-all shadow-lg hover:scale-105">
-                                        <span class="material-symbols-outlined text-xl">person_add</span>
-                                        Connect
-                                    </button>
-                                </form>
-                            @endif
-                        </div>
                     @endif
                 </div>
 
-                @if(session('success'))
-                    <div class="mb-6 bg-green-500 text-white px-6 py-4 rounded-xl shadow-lg flex items-center gap-3 animate-slide-in-right">
-                        <span class="material-symbols-outlined">check_circle</span>
-                        <span class="font-semibold">{{ session('success') }}</span>
-                    </div>
-                @endif
-
-                @if(session('error'))
-                    <div class="mb-6 bg-red-500 text-white px-6 py-4 rounded-xl shadow-lg flex items-center gap-3 animate-slide-in-right">
-                        <span class="material-symbols-outlined">error</span>
-                        <span class="font-semibold">{{ session('error') }}</span>
-                    </div>
-                @endif
                 <!-- Profile Card -->
                 <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200">
                     <!-- Top Cover/Header -->

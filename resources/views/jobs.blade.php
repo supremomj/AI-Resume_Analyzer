@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="flex flex-col min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 font-display text-gray-900">
+<div class="flex flex-col min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 font-display">
     <main class="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div class="max-w-4xl mx-auto">
             <div class="mb-6 sm:mb-8">

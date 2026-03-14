@@ -2,38 +2,53 @@
 
 namespace App\Notifications;
 
-use App\Models\User;
-use App\Models\Message;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 class NewMessage extends Notification
 {
     use Queueable;
 
-    protected $sender;
-    protected $message;
-
-    public function __construct(User $sender, Message $message)
+    /**
+     * Create a new notification instance.
+     */
+    public function __construct()
     {
-        $this->sender = $sender;
-        $this->message = $message;
+        //
     }
 
-    public function via($notifiable): array
+    /**
+     * Get the notification's delivery channels.
+     *
+     * @return array<int, string>
+     */
+    public function via(object $notifiable): array
     {
-        return ['database'];
+        return ['mail'];
     }
 
-    public function toArray($notifiable): array
+    /**
+     * Get the mail representation of the notification.
+     */
+    public function toMail(object $notifiable): MailMessage
+    {
+        return (new MailMessage)
+            ->line('The introduction to the notification.')
+            ->action('Notification Action', url('/'))
+            ->line('Thank you for using our application!');
+    }
+
+    /**
+     * Get the array representation of the notification.
+     *
+     * @return array<string, mixed>
+     */
+    public function toArray(object $notifiable): array
     {
         return [
-            'type' => 'new_message',
-            'sender_id' => $this->sender->id,
-            'sender_name' => $this->sender->first_name . ' ' . $this->sender->last_name,
-            'message' => 'sent you a message.',
-            'content' => $this->message->content,
-            'url' => route('messaging.index', $this->sender),
+            //
         ];
     }
 }

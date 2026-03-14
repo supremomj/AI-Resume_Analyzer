@@ -229,6 +229,19 @@
           </div>
 
           <div>
+            <label for="birth_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Birth Date <span class="text-red-500">*</span></label>
+            <input id="birth_date" name="birth_date" type="date" required
+                   value="{{ old('birth_date') }}"
+                   class="block w-full rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#0f161a] text-gray-900 dark:text-white focus:ring-2 focus:ring-[#1193d4] focus:border-[#1193d4] p-3 transition-all duration-200 hover:border-[#1193d4]/50 @error('birth_date') input-error border-red-500 @enderror"
+                   aria-invalid="@error('birth_date') true @else false @enderror"
+                   aria-describedby="@error('birth_date') birth_date-error @enderror">
+            @error('birth_date')
+              <p id="birth_date-error" class="mt-1 text-sm text-red-600 dark:text-red-400" role="alert">{{ $message }}</p>
+            @enderror
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">You must be at least 18 years old to register.</p>
+          </div>
+
+          <div>
             <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Password <span class="text-red-500">*</span></label>
             <div class="relative">
               <input id="password" name="password" type="password" autocomplete="new-password" required

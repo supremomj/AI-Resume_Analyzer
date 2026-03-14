@@ -3,7 +3,7 @@
 @section('title', 'My Bookmarks - JobMatch PH')
 
 @section('content')
-<div class="flex flex-col min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 font-display text-gray-900">
+<div class="flex flex-col min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 font-display">
     <div class="layout-container flex h-full grow flex-col">
         <main class="flex flex-1 justify-center">
             <div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
