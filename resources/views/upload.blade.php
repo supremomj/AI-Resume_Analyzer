@@ -208,7 +208,7 @@
                     </div>
                     
                     <!-- Right Column: AI Analysis Results -->
-                    <div class="lg:sticky lg:top-20">
+                    <div class="lg:sticky lg:top-20 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto analysis-scrollbar">
                         @if($user->ai_analysis)
                             <div class="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6 shadow-sm">
                                 <div class="flex items-center gap-2 mb-4">
@@ -457,19 +457,49 @@
                                 <!-- Recommended Courses -->
                                 <div class="mb-5">
                                     <span class="text-sm font-semibold text-gray-700 block mb-2">Recommended Courses</span>
-                                    @if(isset($user->ai_analysis['recommended_courses']) && count($user->ai_analysis['recommended_courses']) > 0)
-                                        <div class="space-y-2">
-                                            @foreach(array_slice($user->ai_analysis['recommended_courses'], 0, 3) as $course)
-                                                <div class="p-2 bg-green-50 border border-green-200 rounded-lg text-xs text-green-800 hover:bg-green-100 transition-colors">
-                                                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-                                                    </svg>
-                                                    {{ $course }}
-                                                </div>
+                                    @if(isset($matchedCourses) && $matchedCourses->count() > 0)
+                                        <div class="space-y-2.5">
+                                            @foreach($matchedCourses->take(5) as $course)
+                                                <a href="{{ $course->url }}" target="_blank" rel="noopener noreferrer"
+                                                   class="block p-3 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg hover:shadow-md hover:border-green-300 transition-all duration-200 group">
+                                                    <div class="flex items-start justify-between gap-2">
+                                                        <div class="flex-1 min-w-0">
+                                                            <p class="text-xs font-bold text-gray-900 group-hover:text-[#1193d4] transition-colors truncate">
+                                                                {{ $course->title }}
+                                                            </p>
+                                                            <div class="flex items-center gap-1.5 mt-1 flex-wrap">
+                                                                @if($course->provider)
+                                                                    <span class="inline-flex items-center px-1.5 py-0.5 bg-white border border-gray-200 rounded text-[10px] font-semibold text-gray-600">
+                                                                        {{ $course->provider }}
+                                                                    </span>
+                                                                @endif
+                                                                @if($course->is_free)
+                                                                    <span class="inline-flex items-center px-1.5 py-0.5 bg-green-100 border border-green-300 rounded text-[10px] font-bold text-green-700">
+                                                                        FREE
+                                                                    </span>
+                                                                @endif
+                                                                @if($course->rating)
+                                                                    <span class="inline-flex items-center gap-0.5 text-[10px] text-amber-600 font-semibold">
+                                                                        <svg class="w-3 h-3 text-amber-400 fill-current" viewBox="0 0 20 20">
+                                                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                                                        </svg>
+                                                                        {{ $course->rating }}
+                                                                    </span>
+                                                                @endif
+                                                            </div>
+                                                            @if($course->description)
+                                                                <p class="text-[10px] text-gray-500 mt-1 line-clamp-2">{{ $course->description }}</p>
+                                                            @endif
+                                                        </div>
+                                                        <svg class="w-4 h-4 text-gray-400 group-hover:text-[#1193d4] transition-colors flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                                                        </svg>
+                                                    </div>
+                                                </a>
                                             @endforeach
                                         </div>
                                     @else
-                                        <span class="text-xs text-gray-500 italic">No courses recommended</span>
+                                        <span class="text-xs text-gray-500 italic">Upload a resume to get personalized course recommendations</span>
                                     @endif
                                 </div>
 
@@ -527,60 +557,7 @@
                                     </div>
                                 @endif
                                 
-                                <!-- Extracted Information -->
-                                @php
-                                    // Extract Program/Degree strictly relying on AI-provided fields to prevent huge text block leaks
-                                    $degreeProgram = null;
 
-                                    // 1) Trust the explicit degree/program returned by AI first
-                                    foreach (['degree', 'program', 'course', 'education_degree'] as $k) {
-                                        if (!$degreeProgram && !empty($user->ai_analysis[$k]) && is_string($user->ai_analysis[$k])) {
-                                            $degreeProgram = trim($user->ai_analysis[$k]);
-                                        }
-                                    }
-
-                                    // 2) Safe fallback: Check education entries but limit string length to < 100 chars to avoid rendering paragraphs
-                                    if (!$degreeProgram && isset($user->ai_analysis['education']) && is_array($user->ai_analysis['education'])) {
-                                        foreach ($user->ai_analysis['education'] as $edu) {
-                                            if (is_array($edu)) {
-                                                foreach ($edu as $val) {
-                                                    if (is_string($val) && strlen($val) < 100 && preg_match('/\b(bachelor|master|doctor|bs|ba|mba|phd)\b/i', $val)) {
-                                                        $degreeProgram = trim($val);
-                                                        break 2;
-                                                    }
-                                                }
-                                            } elseif (is_string($edu) && strlen($edu) < 100 && preg_match('/\b(bachelor|master|doctor|bs|ba|mba|phd)\b/i', $edu)) {
-                                                $degreeProgram = trim($edu);
-                                                break;
-                                            }
-                                        }
-                                    }
-                                @endphp
-
-                                <div class="mt-6 pt-4 border-t border-blue-200">
-                                    <h4 class="text-sm font-bold text-gray-900 mb-3 uppercase tracking-wide">Extracted Information</h4>
-                                    
-                                    <div class="space-y-2">
-                                        <div class="flex justify-between">
-                                            <span class="text-xs font-semibold text-gray-600">Program / Degree:</span>
-                                            <span class="text-xs text-gray-800 text-right">
-                                                {{ $degreeProgram ?? 'Not found' }}
-                                            </span>
-                                        </div>
-
-                                        <div class="flex justify-between">
-                                            <span class="text-xs font-semibold text-gray-600">Name:</span>
-                                            <span class="text-xs text-gray-800 text-right">
-                                                {{ $user->ai_analysis['name'] ?? ($user->first_name && $user->last_name ? trim(($user->first_name ?? '') . ' ' . ($user->last_name ?? '')) : ($user->name ?? 'Not found')) }}
-                                            </span>
-                                        </div>
-                                        
-                                        <div class="flex justify-between">
-                                            <span class="text-xs font-semibold text-gray-600">Email:</span>
-                                            <span class="text-xs text-gray-800 text-right break-all">{{ $user->ai_analysis['email'] ?? $user->email ?? 'Not found' }}</span>
-                                        </div>
-                                    </div>
-                                </div>
                             </div>
                         @else
                             @if($user->resume_path)
@@ -676,6 +653,28 @@
             opacity: 1;
             transform: translateY(0);
         }
+    }
+
+    .analysis-scrollbar {
+        scrollbar-width: thin;
+        scrollbar-color: #1193d4 transparent;
+    }
+
+    .analysis-scrollbar::-webkit-scrollbar {
+        width: 5px;
+    }
+
+    .analysis-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .analysis-scrollbar::-webkit-scrollbar-thumb {
+        background: #1193d4;
+        border-radius: 10px;
+    }
+
+    .analysis-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #0f83bd;
     }
     
     #skills-modal {

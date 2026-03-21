@@ -75,7 +75,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/resume/upload', function () {
         // Refresh user data to get latest AI analysis
         $user = auth()->user()->fresh();
-        return view('upload', ['user' => $user]);
+
+        // Match real courses from database based on AI analysis
+        $matchedCourses = collect();
+        if ($user->ai_analysis) {
+            $courseService = new \App\Services\CourseMatchingService();
+            $matchedCourses = $courseService->getMatchedCourses($user->ai_analysis, 6);
+        }
+
+        return view('upload', [
+            'user' => $user,
+            'matchedCourses' => $matchedCourses,
+        ]);
     })->name('resume.upload');
     Route::post('/resume/upload', [ResumeController::class, 'upload'])
         ->middleware('throttle:5,1') // Limit to 5 uploads per minute
